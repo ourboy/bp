@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 
 namespace BPCalculator
 {
@@ -10,7 +9,7 @@ namespace BPCalculator
         [Display(Name="Low Blood Pressure")] Low,
         [Display(Name="Ideal Blood Pressure")]  Ideal,
         [Display(Name="Pre-High Blood Pressure")] PreHigh,
-        [Display(Name ="High Blood Pressure")]  High
+        [Display(Name="High Blood Pressure")] High
     };
 
     public class BloodPressure
@@ -33,7 +32,22 @@ namespace BPCalculator
             {
                 // implement as part of project
                 //throw new NotImplementedException("not implemented yet");
-                return new BPCategory();                       // replace this
+                if (Systolic < 90 || Diastolic < 60)
+                {
+                    return BPCategory.Low;
+                }
+                else if (Systolic <= 120 && Diastolic <= 80)
+                {
+                    return BPCategory.Ideal;
+                }
+                else if (Systolic <= 140 && Diastolic <= 90)
+                {
+                    return BPCategory.PreHigh;
+                }
+                else
+                {
+                    return BPCategory.High;
+                }
             }
         }
     }
