@@ -18,4 +18,4 @@ jobs:
       - name: Build release
         run: dotnet build -c Release
       - name: Run unit tests
-        run: dotnet test bpUnitTestProject.csproj --collect "Code coverage"
+        run: dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect "Code coverage"
