@@ -15,7 +15,21 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: '6.0'
-      - name: Build release
-        run: dotnet build -c Release
-      - name: Run unit tests
-        run: dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect "Code coverage"
+      - name: Build, Run Unit tests, Generate code coverage
+        run: | 
+          dotnet build -c Release
+          dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect "XPlat Code coverage"
+          dotnet tool install -g dotnet-reportgenerator-globaltool
+          reportgenerator -reports:"./bpUnitTestProject/TestResults/*/coverage.cobertura.xml" -targetdir:"./bpUnitTestProject/coverage-report" -reporttypes:Html
+
+      - name: Publish test results and code coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage
+          path: ./bpUnitTestProject/TestResults/
+
+      - name: Upload code coverage HTML report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-html-report
+          path: ./bpUnitTestProject/coverage-report/
