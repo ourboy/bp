@@ -1,13 +1,13 @@
 # Sonar cloud scan
 
-name: SonarCloud
+name: SonarCloud Security Scanning
 on:
   push:
     branches:
-      - master                     
+      - '*'  # Run on all Branches                   
 
 jobs:
-  scan_code:
+  sonar_code_scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
