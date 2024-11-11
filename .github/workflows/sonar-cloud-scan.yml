@@ -1,0 +1,24 @@
+# Sonar cloud scan
+
+name: SonarCloud
+on:
+  workflow_dispatch:                             
+
+jobs:
+  scan_code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.organization=fconnollyCA1
+            -Dsonar.projectKey=fconnollyCA1_bp
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+ 
