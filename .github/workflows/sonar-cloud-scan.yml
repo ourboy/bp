@@ -2,7 +2,9 @@
 
 name: SonarCloud
 on:
-  workflow_dispatch:                             
+  push:
+    branches:
+      - master                     
 
 jobs:
   scan_code:
@@ -20,5 +22,5 @@ jobs:
             -Dsonar.projectKey=fconnollyCA1_bp
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_CLOUD_TOKEN }}
  
