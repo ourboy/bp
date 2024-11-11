@@ -18,8 +18,8 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.organization=fconnollyCA1
-            -Dsonar.projectKey=fconnollyCA1_bp
+            -Dsonar.organization=fconnolly
+            -Dsonar.projectKey=fconnolly_bp-ca1
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_CLOUD_TOKEN }}
