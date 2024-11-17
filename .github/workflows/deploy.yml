@@ -17,7 +17,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '6.0'
+          dotnet-version: '8.0'
       - name: Build, Run Unit tests, Generate code coverage
         run: | 
           dotnet build -c Release
