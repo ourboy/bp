@@ -3,8 +3,11 @@ name: Build and Test BP Calculator
 on:
   push:
     branches:
-      - master
-
+      # - master
+      - '*'  # Run on all Branches  
+  pull_request:
+    branches:
+        - '*'
 jobs:
   build_and_unit_test:
     name: build and run unit tests
@@ -14,7 +17,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '6.0'
+          dotnet-version: '8.0'
       - name: Build, Run Unit tests, Generate code coverage
         run: | 
           dotnet build -c Release
@@ -33,6 +36,7 @@ jobs:
         with:
           name: coverage-html-report
           path: ./bpUnitTestProject/coverage-report/
+          retention-days: 30
   
   deploy:
     name: Deploy to Azure Web App
@@ -51,7 +55,7 @@ jobs:
       - name: Publish web app
         run: dotnet publish -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp
       
-        # Deploy to Azure app service
+      # Deploy to Azure app service
       - name: Run Azure webapp deploy action using publish profile credentials
         uses: azure/webapps-deploy@v2
         with: 
@@ -59,6 +63,28 @@ jobs:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           # slot-name: staging TODO-Remove: Not available on free accounts
           package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
+      
+      # Run Playwright end to end tests
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+      - name: Install dependencies and Playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: |
+          npx playwright test
+        env:
+          BASE_URL: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+    
       # Log in to Azure
       - name: Log in to Azure
         uses: azure/login@v2
