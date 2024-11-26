@@ -44,8 +44,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Debug Test Results
-        run: ls -R ./bpUnitTestProject/TestResults
+
+      - name: Generate Coverage Report
+        run: |
+          dotnet test --collect:"XPlat Code Coverage" --settings bpUnitTestProject/coverlet.runsettings
+          reportgenerator -reports:bpUnitTestProject/TestResults/**/*.xml -targetdir:coverage -reporttypes:cobertura
+
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         with:
