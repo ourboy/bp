@@ -52,7 +52,7 @@ jobs:
           args: >
             -Dsonar.organization=fconnolly
             -Dsonar.projectKey=fconnolly_bp-ca1
-            -Dsonar.coverageReportPaths=./bpUnitTestProject/TestResults/*/coverage.cobertura.xml  # Path to code coverage file
+            -Dsonar.coverageReportPaths=./bpUnitTestProject/TestResults/*/coverage.cobertura.xml 
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_CLOUD_TOKEN }}
