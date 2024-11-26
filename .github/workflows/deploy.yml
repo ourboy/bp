@@ -64,20 +64,40 @@ jobs:
           # slot-name: staging TODO-Remove: Not available on free accounts
           package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
       
+      # Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+
+  playwright_tests:
+    name: Run Playwright Tests
+    runs-on: ubuntu-latest
+    needs: deploy # Ensures tests run only after deployment completes successfully
+    steps: 
+      - uses: actions/checkout@v4
+
       # Run Playwright end to end tests
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22'
+
+      # Install dependencies and Playwright
       - name: Install dependencies and Playwright
         run: |
           npm ci
           npx playwright install --with-deps
+      
+      # Run Playwright tests
       - name: Run Playwright tests
         run: |
           npx playwright test
         env:
           BASE_URL: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      
+      # Upload Playwright report
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -90,3 +110,26 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  performance_tests:
+    name: k6 Performance tests
+    runs-on: ubuntu-latest
+    needs: playwright_tests
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pull Docker image for k6
+      - name: Pull Docker image for k6
+        run: docker pull grafana/k6
+  
+      # Run k6 load test and capture report
+      - name: Run k6 load test, capture report
+        run: docker run -i grafana/k6 run - <bpK6Performance/latencyTest.js > k6LatencyReport.txt
+  
+       # Upload k6 report  
+      - uses: actions/upload-artifact@v4
+        with:
+          name: k6report
+          path: k6LatencyReport.txt
+          retention-days: 30
+
