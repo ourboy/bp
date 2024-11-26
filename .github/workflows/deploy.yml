@@ -47,7 +47,7 @@ jobs:
 
       - name: Generate Coverage Report
         run: |
-          dotnet test --collect:"XPlat Code Coverage" --settings bpUnitTestProject/coverlet.runsettings
+          dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect "XPlat Code coverage"
           reportgenerator -reports:bpUnitTestProject/TestResults/**/*.xml -targetdir:coverage -reporttypes:cobertura
 
       - name: SonarCloud Scan
