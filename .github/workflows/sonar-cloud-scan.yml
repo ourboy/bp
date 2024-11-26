@@ -1,31 +1,54 @@
-# # sonar_scan.yml
+name: SonarCloud Analysis
 
-# name: SonarCloud Security and Coverage Scanning
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+      - 'bugfix/**'
+  pull_request:
+    branches:
+      - main
+      - 'feature/**'
+      - 'bugfix/**'
 
-# on:
-#   workflow_run:
-#     workflows: ["Build and Run Unit Tests"]
-#     types:
-#       - completed
+jobs:
+  build:
+    name: Build and Analyze
+    runs-on: ubuntu-latest
 
-# jobs:
-#   sonar_code_scan:
-#     name: SonarCloud Scan with Code Coverage
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#       - name: Download Coverage Report
-#         uses: actions/download-artifact@v3
-#         with:
-#           name: coverage-report
-#       - name: SonarCloud Scan
-#         uses: sonarsource/sonarcloud-github-action@master
-#         with:
-#           projectBaseDir: .
-#           args: >
-#             -Dsonar.organization=fconnolly
-#             -Dsonar.projectKey=fconnolly_bp-ca1
-#             -Dsonar.cs.opencover.reportsPaths=./bpUnitTestProject/TestResults/*/coverage.cobertura.xml
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-#           SONAR_TOKEN: ${{ secrets.SONAR_CLOUD_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.x' # Change to your target .NET version
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Run tests with coverage
+        run: dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect:"XPlat Code Coverage" --no-build --verbosity normal
+
+      - name: Install SonarScanner for .NET
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Run SonarCloud analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Auto-created by GitHub
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Your SonarCloud token
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet sonarscanner begin \
+            /k:"fconnolly_bp-ca1" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" # Path to the coverage report
+          dotnet build
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

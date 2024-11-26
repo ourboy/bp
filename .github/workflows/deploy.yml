@@ -36,25 +36,15 @@ jobs:
           name: coverage-html-report
           path: ./bpUnitTestProject/coverage-report/
           retention-days: 30
-  
-  sonar_scan:
+
+  sonar_code_scan:
     name: SonarCloud Scan
     runs-on: ubuntu-latest
     needs: build_and_unit_test
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v2
+      - uses: actions/checkout@v4
         with:
-          dotnet-version: '8.0'
-
-      - name: Generate Coverage Report
-        run: |
-          dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect "XPlat Code coverage"
-          dotnet tool install -g dotnet-reportgenerator-globaltool
-          reportgenerator -reports:bpUnitTestProject/TestResults/**/*.xml -targetdir:coverage -reporttypes:cobertura
-
+          fetch-depth: 0  
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         with:
@@ -62,11 +52,10 @@ jobs:
           args: >
             -Dsonar.organization=fconnolly
             -Dsonar.projectKey=fconnolly_bp-ca1
-            -Dsonar.coverageReportPaths=./bpUnitTestProject/TestResults/**/*.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_CLOUD_TOKEN }}
-  
+
   deploy:
     name: Deploy to Azure Web App
     runs-on: ubuntu-latest
