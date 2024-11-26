@@ -23,8 +23,7 @@ jobs:
           dotnet build -c Release
           dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect "XPlat Code coverage"
           dotnet tool install -g dotnet-reportgenerator-globaltool
-          reportgenerator -reports:"./bpUnitTestProject/TestResults/*/coverage.cobertura.xml" -targetdir:"./bpUnitTestProject/coverage-report" -reporttypes:Html,Cobertura
-
+          reportgenerator -reports:"./bpUnitTestProject/TestResults/*/coverage.cobertura.xml" -targetdir:"./bpUnitTestProject/coverage-report" -reporttypes Html Cobertura
       - name: Publish test results and code coverage
         uses: actions/upload-artifact@v3
         with:
