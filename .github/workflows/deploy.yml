@@ -23,7 +23,7 @@ jobs:
           dotnet build -c Release
           dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect "XPlat Code coverage"
           dotnet tool install -g dotnet-reportgenerator-globaltool
-          # reportgenerator -reports:"./bpUnitTestProject/TestResults/*/coverage.cobertura.xml" -targetdir:"./bpUnitTestProject/coverage-report" -reporttypes:Cobertura
+          reportgenerator -reports:"./bpUnitTestProject/TestResults/*/coverage.cobertura.xml" -targetdir:"./bpUnitTestProject/coverage-report" -reporttypes:Cobertura
       - name: Publish test results and code coverage
         uses: actions/upload-artifact@v3
         with:
@@ -44,6 +44,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Debug Test Results
+        run: ls -R bpUnitTestProject/TestResults
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         with:
@@ -51,7 +53,7 @@ jobs:
           args: >
             -Dsonar.organization=fconnolly
             -Dsonar.projectKey=fconnolly_bp-ca1
-            -Dsonar.coverageReportPaths=./bpUnitTestProject/TestResults/*/coverage.cobertura.xml 
+            -Dsonar.coverageReportPaths=./bpUnitTestProject/TestResults/*/coverage.cobertura.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_CLOUD_TOKEN }}
