@@ -124,7 +124,7 @@ jobs:
   
       # Run k6 load test and capture report
       - name: Run k6 load test, capture report
-        run: docker run -v $GITHUB_WORKSPACE:/mnt/k6 -i grafana/k6 run /mnt/k6/bpK6Performance/latencyTest.js
+        run: docker run -v $GITHUB_WORKSPACE:/mnt/k6 -i grafana/k6 run /mnt/k6/bpK6Performance/latencyTest.js > k6LatencyReport.txt
   
        # Upload k6 report  
       - uses: actions/upload-artifact@v4

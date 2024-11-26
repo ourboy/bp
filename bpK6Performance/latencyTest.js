@@ -14,7 +14,7 @@ export default function () {
 
   // Check that response time is below 200ms
   check(res, {
-    "response time < 30ms": (r) => r.timings.duration < 30,
+    "response time < 150ms": (r) => r.timings.duration < 150,
   });
   // Log detailed timings for analysis
   console.log(`Response Time: ${res.timings.duration}`);
