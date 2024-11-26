@@ -45,7 +45,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Debug Test Results
-        run: ls -R bpUnitTestProject/TestResults
+        run: ls -R ./bpUnitTestProject/TestResults
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         with:
