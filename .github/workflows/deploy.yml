@@ -44,10 +44,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.0'
 
       - name: Generate Coverage Report
         run: |
           dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect "XPlat Code coverage"
+          dotnet tool install -g dotnet-reportgenerator-globaltool
           reportgenerator -reports:bpUnitTestProject/TestResults/**/*.xml -targetdir:coverage -reporttypes:cobertura
 
       - name: SonarCloud Scan
