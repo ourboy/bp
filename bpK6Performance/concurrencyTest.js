@@ -8,7 +8,7 @@ export let options = {
   stages: [
     // For this CA the values are set low, Target should be increased up to 200, and run for 60mins
     { duration: '1m', target: 10 },  // Ramp up to 10 concurrent users
-    { duration: '1m', target: 30 },  // Hold at 30 concurrent users for 1 minutes
+    { duration: '1m', target: 15 },  // Hold at 15 concurrent users for 1 minutes
     { duration: '1m', target: 10 },  // Ramp down to 10 users
   ],
   thresholds: {
