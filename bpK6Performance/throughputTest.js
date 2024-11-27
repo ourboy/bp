@@ -13,7 +13,7 @@ export let options = {
     { duration: '20s', target: 0 },   // Ramp down
   ],
   thresholds: {
-    http_reqs: ['rate>140'], // Ensure throughput is above 100 requests/second
+    http_reqs: ['rate>100'], // Ensure throughput is above 100 requests/second
     http_req_failed: ['rate<0.01'], // Keep error rate below 1%
     http_req_duration: ['p(95)<300'], // 95% of requests should complete within 300ms
   },
