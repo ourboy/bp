@@ -167,4 +167,24 @@ jobs:
             k6StressReport.txt
             k6ThroughputReport.txt
           retention-days: 30
+          
+  pentesting:
+    name: OWASP Pen testing
+    runs-on: ubuntu-latest
+    needs: performance_tests
+    env:
+      TARGET_URL: https://test-bpcalculator.azurewebsites.net/
+    steps:
+    - name: Pull Docker image for ZAP
+      run: docker pull zaproxy/zap-weekly
+
+    - name: Run baseline scan
+      run: docker run -v /report:/zap/wrk/:rw --user root -t zaproxy/zap-weekly zap-baseline.py -t $TARGET_URL -I -r zapreport.html
+  
+    - uses: actions/upload-artifact@v4
+      name: upload ZAP report
+      with:
+        name: ZAPreport
+        path: /report/zapreport.html
+        retention-days: 30
 
