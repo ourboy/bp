@@ -40,9 +40,9 @@ jobs:
       - name: Run OWASP Dependency-Check
         uses: dependency-check/Dependency-Check_Action@main
         with:
-          project: MyProject
+          project: BPCA1
           scan: .
-          format: HTML  # Generates all report types (HTML, XML, JSON, etc.)
+          format: ALL  # Generates all report types (HTML, XML, JSON, etc.)
           failCriteria: medium  # Fail the workflow on vulnerabilities of severity 'low' or higher
         
       - name: Upload OWASP Dependency-Check report
