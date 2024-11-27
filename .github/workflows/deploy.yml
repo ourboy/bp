@@ -44,6 +44,11 @@ jobs:
           scan: .
           format: ALL  # Generates all report types (HTML, XML, JSON, etc.)
           failCriteria: medium  # Fail the workflow on vulnerabilities of severity 'low' or higher
+          outputDirectory: ./dependency-check-report 
+      
+      - name: List Dependency-Check Report Files
+        run: ls -l ./dependency-check-report
+  
         
       - name: Upload OWASP Dependency-Check report
         uses: actions/upload-artifact@v3
