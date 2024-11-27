@@ -26,13 +26,13 @@ jobs:
           reportgenerator -reports:"./bpUnitTestProject/TestResults/*/coverage.cobertura.xml" -targetdir:"./bpUnitTestProject/coverage-report" -reporttypes:Html
 
       - name: Publish test results and code coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: code-coverage
           path: ./bpUnitTestProject/TestResults/
 
       - name: Upload code coverage HTML report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-html-report
           path: ./bpUnitTestProject/coverage-report/
@@ -44,17 +44,12 @@ jobs:
           scan: .
           format: ALL  # Generates all report types (HTML, XML, JSON, etc.)
           failCriteria: medium  # Fail the workflow on vulnerabilities of severity 'low' or higher
-          outputDirectory: ./dependency-check-report 
-      
-      - name: List Dependency-Check Report Files
-        run: ls -l ./dependency-check-report
-  
         
       - name: Upload OWASP Dependency-Check report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: owasp-dependency-check-report
-          path: ./dependency-check-report/
+          name: Depcheck report
+          path: ${{github.workspace}}/reports
           retention-days: 30
 
   # sonar_code_scan:
