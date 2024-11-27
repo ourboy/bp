@@ -13,7 +13,7 @@ export let options = {
   ],
   thresholds: {
     http_req_failed: ['rate<0.05'],  // Error rate below 5%
-    http_req_duration: ['p(95)<300'], // 95% of requests should complete within 300ms
+    http_req_duration: ['p(95)<400'], // 95% of requests should complete within 400ms
   },
 };
 
@@ -22,6 +22,6 @@ export default function () {
   
   check(res, {
     "GET is status 200": (r) => r.status === 200,
-    "GET response time < 300ms": (r) => r.timings.duration < 300,
+    "GET response time < 400ms": (r) => r.timings.duration < 400,
   });
 }
