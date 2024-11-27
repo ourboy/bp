@@ -23,7 +23,8 @@ jobs:
           dotnet build -c Release
           dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect "XPlat Code coverage"
           dotnet tool install -g dotnet-reportgenerator-globaltool
-          reportgenerator -reports:"./bpUnitTestProject/TestResults/*/coverage.cobertura.xml" -targetdir:"./bpUnitTestProject/coverage-report" -reporttypes:Cobertura
+          reportgenerator -reports:"./bpUnitTestProject/TestResults/*/coverage.cobertura.xml" -targetdir:"./bpUnitTestProject/coverage-report" -reporttypes:Html
+
       - name: Publish test results and code coverage
         uses: actions/upload-artifact@v3
         with:
@@ -140,14 +141,30 @@ jobs:
       - name: Pull Docker image for k6
         run: docker pull grafana/k6
   
-      # Run k6 load test and capture report
+      # Run k6 Latency test and capture report
       - name: Run k6 load test, capture report
         run: docker run -v $GITHUB_WORKSPACE:/mnt/k6 -i grafana/k6 run /mnt/k6/bpK6Performance/latencyTest.js > k6LatencyReport.txt
+
+      # Run k6 concurrency test and capture report
+      - name: Run k6 concurrency test, capture report
+        run: docker run -v $GITHUB_WORKSPACE:/mnt/k6 -i grafana/k6 run /mnt/k6/bpK6Performance/concurrencyTest.js > k6ConcurrencyReport.txt
+      
+      # Run k6 stress test and capture report
+      - name: Run k6 stress test, capture report
+        run: docker run -v $GITHUB_WORKSPACE:/mnt/k6 -i grafana/k6 run /mnt/k6/bpK6Performance/stressTest.js > k6StressReport.txt
+
+      # Run k6 throughput test and capture report
+      - name: Run k6 throughput test, capture report
+        run: docker run -v $GITHUB_WORKSPACE:/mnt/k6 -i grafana/k6 run /mnt/k6/bpK6Performance/throughputTest.js > k6ThroughputReport.txt
   
        # Upload k6 report  
       - uses: actions/upload-artifact@v4
         with:
           name: k6report
-          path: k6LatencyReport.txt
+          path: | 
+            k6LatencyReport.txt
+            k6ConcurrencyReport.txt
+            k6StressReport.txt
+            k6ThroughputReport.txt
           retention-days: 30
 
