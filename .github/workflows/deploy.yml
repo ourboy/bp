@@ -65,7 +65,7 @@ jobs:
 
       - name: Run BDD Tests
         run: |
-          dotnet build -c Release
+          dotnet build AcceptanceTest
           dotnet test AcceptanceTest/ --logger:"console" --results-directory ./BDDTestResults
 
       - name: Upload BPValidation Test Results
