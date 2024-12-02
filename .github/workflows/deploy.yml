@@ -65,7 +65,7 @@ jobs:
 
       - name: Run BDD Tests
         run: |
-          dotnet test --logger:"console" --results-directory ./TestResults/BDDTestResults
+          dotnet test AcceptanceTest/ --logger:"console" --results-directory ./BDDTestResults
 
       - name: Upload BPValidation Test Results
         uses: actions/upload-artifact@v4
