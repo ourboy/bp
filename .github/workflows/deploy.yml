@@ -52,8 +52,8 @@ jobs:
           path: ${{github.workspace}}/reports
           retention-days: 30
   
-  bpvalidation_tests:
-    name: Run BPValidation and BPCalculator Tests
+  bpBDD_tests:
+    name: Run BPValidation and BPCalculator BDD Tests
     runs-on: ubuntu-latest
     needs: build_and_unit_test 
     steps:
@@ -65,14 +65,13 @@ jobs:
 
       - name: Run BDD Tests
         run: |
-          dotnet build AcceptanceTest
-          dotnet test AcceptanceTest/ --logger:"console" --results-directory ./BDDTestResults
+          dotnet test AcceptanceTest/ --logger:"trx;LogFileName=BDDTestResults.trx" --results-directory ./AcceptanceTest/BDDTestResults
 
-      - name: Upload BPValidation Test Results
+      - name: Upload bpBDD Test Results
         uses: actions/upload-artifact@v4
         with:
           name: bpvalidation-test-results
-          path: ./TestResults/BDDTestResults/
+          path: ./AcceptanceTest/BDDTestResults
           retention-days: 30
   
   # sonar_code_scan:
