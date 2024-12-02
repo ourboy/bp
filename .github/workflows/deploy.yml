@@ -51,7 +51,29 @@ jobs:
           name: Depcheck report
           path: ${{github.workspace}}/reports
           retention-days: 30
+  
+  bpvalidation_tests:
+    name: Run BPValidation and BPCalculator Tests
+    runs-on: ubuntu-latest
+    needs: build_and_unit_test 
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.0'
 
+      - name: Run BDD Tests
+        run: |
+          dotnet test --logger:"console" --results-directory ./TestResults/BDDTestResults
+
+      - name: Upload BPValidation Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpvalidation-test-results
+          path: ./TestResults/BDDTestResults/
+          retention-days: 30
+  
   # sonar_code_scan:
   #   name: SonarCloud Scan
   #   runs-on: ubuntu-latest
