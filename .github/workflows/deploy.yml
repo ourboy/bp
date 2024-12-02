@@ -65,13 +65,13 @@ jobs:
 
       - name: Run BDD Tests
         run: |
-          dotnet test AcceptanceTest/ --logger:"trx;LogFileName=BDDTestResults.trx" --results-directory ./AcceptanceTest/BDDTestResults
+          dotnet test AcceptanceTest/ --logger:"html;LogFileName=BDDTestResults.html" --results-directory ./AcceptanceTest/BDDTestResults
 
       - name: Upload bpBDD Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: bpvalidation-test-results
-          path: ./AcceptanceTest/BDDTestResults
+          name: bpBDD-test-results
+          path: ./AcceptanceTest/BDDTestResults/BDDTestResults.html
           retention-days: 30
   
   # sonar_code_scan:
