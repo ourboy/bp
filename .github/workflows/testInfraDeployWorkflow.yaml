@@ -1,0 +1,71 @@
+name: Provision Azure Resources
+
+on:
+  push:
+    branches:
+      # - master
+      - '*'  # Run on all Branches  
+  pull_request:
+    branches:
+        - '*'
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    env:
+      devca1TemplateFile: azureWebAppProvisioning/testTemplete.json
+      devca1ParameterFile: azureWebAppProvisioning/testTemplete.parameters.json
+      deploymentType: dev
+      subscriptionID: a0fc7782-688a-4bba-a57c-5a4896ef78d0
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Log in to Azure
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # Create Dev Resource Group
+    - name: Provision Resource Group
+      run: |
+        az group create --name ${{ env.deploymentType }}ca1 --location "UK South"
+
+    # Create pp Service Plan and Web App
+    - name: Create App Service Plan and Web App
+      run: |
+
+        az deployment group create --name devenvironment --resource-group ${{ env.deploymentType }}ca1 --template-file ${{ env.testtemplateFile }} --parameters ${{ env.testdevParameterFile }}
+
+    
+    - name: Download Publish Profile
+      run: |
+        az webapp deployment list-publishing-profiles --name myWebApphome --resource-group ${{ env.deploymentType }}ca1 --subscription ${{ env.subscriptionID}} > dev-profile.json
+
+
+    - name: Upload Publish Profile as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: publish-profile
+        path: dev-profile.json
+  
+  verify-profile:
+    needs: provision
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Download Publish Profile Artifact
+      - name: Download Publish Profile Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: publish-profile
+          path: .
+
+      # Step 2: Verify Publish Profile
+      - name: Verify Publish Profile Usability
+        run: |
+          PROFILE_CONTENT=$(cat dev-profile.json)
+          if [ -z "$PROFILE_CONTENT" ]; then
+            echo "Publish profile is empty or invalid."
+            exit 1
+          fi
+          echo "Publish profile successfully retrieved and is not empty."
