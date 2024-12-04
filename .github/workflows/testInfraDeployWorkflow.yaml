@@ -31,7 +31,7 @@ jobs:
     # Create Dev Resource Group
     - name: Provision Resource Group
       run: |
-        az group create --name ${{ env.deploymentType }}ca1 --location  ${{env.region}}
+        az group create --name ${{ env.deploymentType }}ca1 --location "${{env.region}}"
 
     - name: Deploy ARM Template
       uses: azure/arm-deploy@v2
