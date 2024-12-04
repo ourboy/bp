@@ -74,7 +74,14 @@ jobs:
     needs: verify-profile
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Delete Resource Group and all resource
+      # Step 1: Azure Login
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Step 2: Delete Resource Group and all resource
       - name: Delete Resource Group
         run: |
-          az group delete --name ${{ env.deploymentType }}ca1 -y
+          az group delete --name ${{ env.deploymentType }}ca1 -y --no-wait
+          echo "Resource group deletion initiated."
