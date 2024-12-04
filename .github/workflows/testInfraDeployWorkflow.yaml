@@ -9,9 +9,9 @@ on:
     branches:
         - '*'
 env:
-  devca1TemplateFile: azureWebAppProvisioning/testTemplete.json
-  devca1ParameterFile: azureWebAppProvisioning/testTemplete.parameters.json
-  deploymentType: dev
+  devca1TemplateFile: azureWebAppProvisioning/webAppTemplete.json
+  devca1ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
+  resourceGroupName: infraTest
   subscriptionID: a0fc7782-688a-4bba-a57c-5a4896ef78d0
   region: "UK South"
 
@@ -31,29 +31,24 @@ jobs:
     # Create Dev Resource Group
     - name: Provision Resource Group
       run: |
-        az group create --name ${{ env.deploymentType }}ca1 --location "${{env.region}}"
+        az group create --name ${{ env.resourceGroupName }}ca1 --location "${{env.region}}"
 
+    # Deploy Dev Template
     - name: Deploy ARM Template
       uses: azure/arm-deploy@v2
       with:
-        resourceGroupName: ${{ env.deploymentType }}ca1
+        resourceGroupName: ${{ env.resourceGroupName }}ca1
         template: ${{ env.devca1TemplateFile }}
         parameters:  ${{ env.devca1ParameterFile }}
         region:  ${{env.region}}
         deploymentMode: Incremental
 
-
-    # # Create pp Service Plan and Web App
-    # - name: Create App Service Plan and Web App
-    #   run: |
-
-    #     az deployment group create --name devenvironment --resource-group ${{ env.deploymentType }}ca1 --template-file ${{ env.devca1TemplateFile }} --parameters ${{ env.devca1ParameterFile }}
-    
+    # Download Publish Profile Artifact from 
     - name: Download Publish Profile
       run: |
-        az webapp deployment list-publishing-profiles --name myWebApphome --resource-group ${{ env.deploymentType }}ca1 --subscription ${{ env.subscriptionID}} > dev-profile.json
-
-
+        az webapp deployment list-publishing-profiles --name infraTestCA1 --resource-group ${{ env.resourceGroupName }}ca1 --subscription ${{ env.INFRA_AZURE_SUBSCRIPTION_ID}} > dev-profile.json
+    
+    # Upload Publish Profile Artifact
     - name: Upload Publish Profile as Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -64,14 +59,14 @@ jobs:
     needs: provision
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Download Publish Profile Artifact
+      # Download Publish Profile Artifact
       - name: Download Publish Profile Artifact
         uses: actions/download-artifact@v4
         with:
           name: publish-profile
           path: .
 
-      # Step 2: Verify Publish Profile
+      # Verify Publish Profile
       - name: Verify Publish Profile Usability
         run: |
           PROFILE_CONTENT=$(cat dev-profile.json)
@@ -85,14 +80,14 @@ jobs:
     needs: verify-profile
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Azure Login
+      # Azure Login
       - name: Login to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Step 2: Delete Resource Group and all resource
+      # Delete Resource Group and all resource
       - name: Delete Resource Group
         run: |
-          az group delete --name ${{ env.deploymentType }}ca1 -y --no-wait
+          az group delete --name ${{ env.resourceGroupName }}ca1 -y --no-wait
           echo "Resource group deletion initiated."

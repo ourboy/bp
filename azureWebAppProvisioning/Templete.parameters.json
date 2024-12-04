@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "appServicePlanName": {
-      "value": "myAppServicePlanME"
+      "value": "<NAME OF APP SERVICE PLAN NAME"
     },
     "skuName": {
       "value": "B1"
@@ -21,7 +21,7 @@
       "value": "B"
     },
     "webAppName": {
-      "value": "myWebApphome"
+      "value": "WEB APP NAME"
     }
   }
 }
