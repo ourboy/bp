@@ -46,7 +46,7 @@ jobs:
     # Download Publish Profile Artifact from 
     - name: Download Publish Profile
       run: |
-        az webapp deployment list-publishing-profiles --name infraTestCA1 --resource-group ${{ env.resourceGroupName }}ca1 --subscription ${{ env.INFRA_AZURE_SUBSCRIPTION_ID}} > dev-profile.json
+        az webapp deployment list-publishing-profiles --name infraTestbp --resource-group ${{ env.resourceGroupName }}ca1 --subscription ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID}} > dev-profile.json
     
     # Upload Publish Profile Artifact
     - name: Upload Publish Profile as Artifact
