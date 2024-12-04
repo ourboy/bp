@@ -1,11 +1,11 @@
 name: Infrastructure Provision Test
 
 on:
-  workflow_run:
-    workflows: ["deploy.yaml"]
-    types:
-      - requested
-
+  # workflow_run:
+  #   workflows: ["deploy.yaml"]
+  #   types:
+  #     - requested
+  workflow_call:
 env:
   TemplateFile: azureWebAppProvisioning/webAppTemplete.json
   ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
