@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appServicePlanName": {
+      "value": "<NAME OF APP SERVICE PLAN NAME"
+    },
+    "skuName": {
+      "value": "B1"
+    },
+    "skuTier": {
+      "value": "Basic"
+    },
+    "skuCapacity": {
+      "value": 1
+    },
+    "skuSize": {
+      "value": "B1"
+    },
+    "skuFamily": {
+      "value": "B"
+    },
+    "webAppName": {
+      "value": "WEB APP NAME"
+    }
+  }
+}

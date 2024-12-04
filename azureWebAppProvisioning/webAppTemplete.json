@@ -1,0 +1,66 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "appServicePlanName": {
+        "defaultValue": "myAppServicePlanFergal",
+        "type": "string"
+      },
+      "skuName": {
+        "defaultValue": "B1",
+        "type": "string"
+      },
+      "skuTier": {
+        "defaultValue": "Basic",
+        "type": "string"
+      },
+      "skuCapacity": {
+        "defaultValue": 1,
+        "type": "int"
+      },
+      "skuSize": {
+        "defaultValue": "B1",
+        "type": "string"
+      },
+      "skuFamily": {
+        "defaultValue": "B",
+        "type": "string"
+      },
+      "webAppName": {
+        "defaultValue": "myWebApp",
+        "type": "string"
+      }
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Web/serverfarms",
+        "apiVersion": "2021-02-01",
+        "location": "[resourceGroup().location]",
+        "sku": {
+            "Tier": "Free",
+            "Name": "F1",
+            "Capacity": 1
+        },
+        "properties": {
+          "name": "[parameters('appServicePlanName')]",
+          "reserved": false
+        },
+        "name": "[parameters('appServicePlanName')]",
+        "dependsOn": []
+      },
+      {
+        "type": "Microsoft.Web/sites",
+        "apiVersion": "2021-02-01",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "name": "[parameters('webAppName')]",
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+        },
+        "name": "[parameters('webAppName')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+        ]
+      }
+    ]
+  }
+  
