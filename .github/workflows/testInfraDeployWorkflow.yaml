@@ -9,8 +9,8 @@ on:
     branches:
         - '*'
 env:
-  devca1TemplateFile: azureWebAppProvisioning/webAppTemplete.json
-  devca1ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
+  TemplateFile: azureWebAppProvisioning/webAppTemplete.json
+  ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
   resourceGroupName: infraTest
   subscriptionID: a0fc7782-688a-4bba-a57c-5a4896ef78d0
   region: "UK South"
@@ -38,8 +38,8 @@ jobs:
       uses: azure/arm-deploy@v2
       with:
         resourceGroupName: ${{ env.resourceGroupName }}ca1
-        template: ${{ env.devca1TemplateFile }}
-        parameters:  ${{ env.devca1ParameterFile }}
+        template: ${{ env.TemplateFile }}
+        parameters:  ${{ env.ParameterFile }}
         region:  ${{env.region}}
         deploymentMode: Incremental
 
