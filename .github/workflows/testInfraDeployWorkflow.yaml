@@ -1,4 +1,4 @@
-name: Provision Azure Resources
+name: Infrastructure Provision Test
 
 on:
   push:
@@ -13,6 +13,7 @@ env:
   devca1ParameterFile: azureWebAppProvisioning/testTemplete.parameters.json
   deploymentType: dev
   subscriptionID: a0fc7782-688a-4bba-a57c-5a4896ef78d0
+  region: UK South
 
 jobs:
   provision:
@@ -30,13 +31,23 @@ jobs:
     # Create Dev Resource Group
     - name: Provision Resource Group
       run: |
-        az group create --name ${{ env.deploymentType }}ca1 --location "UK South"
+        az group create --name ${{ env.deploymentType }}ca1 --location  ${{env.region}}
 
-    # Create pp Service Plan and Web App
-    - name: Create App Service Plan and Web App
-      run: |
+    - name: Deploy ARM Template
+      uses: azure/arm-deploy@v2
+      with:
+        resourceGroupName: ${{ env.deploymentType }}ca1
+        template: ${{ env.devca1TemplateFile }}
+        parameters:  ${{ env.devca1ParameterFile }}
+        region:  ${{env.region}}
+        deploymentMode: Incremental
 
-        az deployment group create --name devenvironment --resource-group ${{ env.deploymentType }}ca1 --template-file ${{ env.devca1TemplateFile }} --parameters ${{ env.devca1ParameterFile }}
+
+    # # Create pp Service Plan and Web App
+    # - name: Create App Service Plan and Web App
+    #   run: |
+
+    #     az deployment group create --name devenvironment --resource-group ${{ env.deploymentType }}ca1 --template-file ${{ env.devca1TemplateFile }} --parameters ${{ env.devca1ParameterFile }}
     
     - name: Download Publish Profile
       run: |
