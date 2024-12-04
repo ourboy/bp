@@ -1,13 +1,11 @@
 name: Infrastructure Provision Test
 
 on:
-  push:
-    branches:
-      # - master
-      - '*'  # Run on all Branches  
-  pull_request:
-    branches:
-        - '*'
+  workflow_run:
+    workflows: ["deploy.yaml"]
+    types:
+      - requested
+
 env:
   TemplateFile: azureWebAppProvisioning/webAppTemplete.json
   ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
