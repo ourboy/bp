@@ -13,7 +13,7 @@ env:
   devca1ParameterFile: azureWebAppProvisioning/testTemplete.parameters.json
   deploymentType: dev
   subscriptionID: a0fc7782-688a-4bba-a57c-5a4896ef78d0
-  region: UK South
+  region: "UK South"
 
 jobs:
   provision:
