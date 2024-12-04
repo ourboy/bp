@@ -9,8 +9,15 @@ on:
     branches:
         - '*'
 jobs:
+  test_infra:
+    name: Test Infrastructure Deployment
+    runs-on: ubuntu-latest
+    steps:
+    - uses: ./.github/workflows/testInfraDeployWorkflow.yaml
+      
   build_and_unit_test:
     name: build and run unit tests
+    needs: test_infra
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
