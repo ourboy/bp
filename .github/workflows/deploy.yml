@@ -16,8 +16,10 @@ on:
 jobs:
   test_infra:
     name: Test Infrastructure Deployment
-    uses: ./.github/workflows/testInfraDeployWorkflow.yaml 
-      
+    uses: ./.github/workflows/testInfraDeployWorkflow.yaml
+    with:
+      branch: extend-gitactions
+  
   build_and_unit_test:
     name: build and run unit tests
     needs: test_infra
