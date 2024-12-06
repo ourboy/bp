@@ -19,7 +19,6 @@ env:
   TemplateFile: azureWebAppProvisioning/webAppTemplete.json
   ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
   resourceGroupName: infraTest
-  subscriptionID: a0fc7782-688a-4bba-a57c-5a4896ef78d0
   region: "UK South"
 
 jobs:
