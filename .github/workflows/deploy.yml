@@ -19,6 +19,8 @@ jobs:
     uses: ./.github/workflows/testInfraDeployWorkflow.yaml
     with:
       branch: extend-gitactions
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   
   build_and_unit_test:
     name: build and run unit tests
