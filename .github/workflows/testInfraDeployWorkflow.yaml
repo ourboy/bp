@@ -6,6 +6,10 @@ on:
   #   types:
   #     - requested
   workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
 env:
   TemplateFile: azureWebAppProvisioning/webAppTemplete.json
   ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
