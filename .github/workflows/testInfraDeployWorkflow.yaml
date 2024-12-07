@@ -9,8 +9,6 @@ on:
     secrets:
       AZURE_CREDENTIALS:
         required: true
-      INFRA_AZURE_SUBSCRIPTION_ID:
-        required: true
     inputs:
       branch:
         required: true
