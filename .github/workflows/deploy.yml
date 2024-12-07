@@ -26,7 +26,7 @@ jobs:
   build_and_unit_test:
     name: build and run unit tests
     needs: test_infra
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Setup .NET Core
@@ -69,7 +69,7 @@ jobs:
   
   sonar_code_scan:
     name: SonarCloud Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build_and_unit_test
     steps:
       - uses: actions/checkout@v4
@@ -88,7 +88,7 @@ jobs:
         
   bpBDD_tests:
     name: Run BPValidation and BPCalculator BDD Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build_and_unit_test 
     steps:
       - uses: actions/checkout@v4

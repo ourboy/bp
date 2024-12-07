@@ -23,7 +23,7 @@ env:
 
 jobs:
   provision:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -63,7 +63,7 @@ jobs:
   
   verify-profile:
     needs: provision
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Download Publish Profile Artifact
       - name: Download Publish Profile Artifact
@@ -84,7 +84,7 @@ jobs:
   
   delete-created-resources:
     needs: verify-profile
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Azure Login
       - name: Login to Azure
