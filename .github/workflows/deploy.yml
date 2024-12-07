@@ -25,16 +25,6 @@ jobs:
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       INFRA_AZURE_SUBSCRIPTION_ID: ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID}}
-  
-test_infra:
-  name: Test Infrastructure Deployment
-  uses: ./.github/workflows/testInfraDeployWorkflow.yaml
-  with:
-    branch: extend-gitactions
-    run_jobs: jobC # Specify that only jobC should run
-  secrets:
-    AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-    INFRA_AZURE_SUBSCRIPTION_ID: ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID }}
 
   build_and_unit_test:
     name: build and run unit tests
