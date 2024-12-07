@@ -26,6 +26,7 @@ env:
 
 jobs:
   provision:
+    if: contains(inputs.run_jobs, 'provision')
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout code
@@ -65,7 +66,8 @@ jobs:
         path: dev-profile.json
   
   verify-profile:
-    # needs: provision
+    if: contains(inputs.run_jobs, 'verify-profile')
+    needs: provision
     runs-on: ubuntu-24.04
     steps:
       # Download Publish Profile Artifact
@@ -86,6 +88,7 @@ jobs:
           echo "Publish profile successfully retrieved and is not empty."
   
   delete-created-resources:
+    if: contains(inputs.run_jobs, 'delete-created-resources')
     # needs: verify-profile
     runs-on: ubuntu-24.04
     steps:
