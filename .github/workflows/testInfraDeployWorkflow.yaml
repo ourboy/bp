@@ -15,6 +15,9 @@ on:
       branch:
         required: true
         type: string
+      run_jobs:
+        required: false
+        type: string
 env:
   TemplateFile: azureWebAppProvisioning/webAppTemplete.json
   ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
