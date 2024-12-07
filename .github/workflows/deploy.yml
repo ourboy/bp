@@ -22,9 +22,23 @@ jobs:
       run_jobs: |
         provision
         verify-profile
+      resourceGroupName: infraTest
+      subscriptionId: ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID }} # Replace with the secret for the designated environment
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      INFRA_AZURE_SUBSCRIPTION_ID: ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID}}
+      # INFRA_AZURE_SUBSCRIPTION_ID: ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID}}
+  
+  delet_test_infra:
+    name: Test Infrastructure Deployment
+    uses: ./.github/workflows/testInfraDeployWorkflow.yaml
+    with:
+      branch: extend-gitactions
+      run_jobs: delete-created-resources
+      resourceGroupName: infraTest
+      subscriptionId: ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID }} # Replace with the secret for the designated environment
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      # INFRA_AZURE_SUBSCRIPTION_ID: ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID}}
 
   build_and_unit_test:
     name: build and run unit tests

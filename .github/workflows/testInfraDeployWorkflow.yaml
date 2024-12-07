@@ -18,10 +18,16 @@ on:
       run_jobs:
         required: false
         type: string
+      resourceGroupName:
+        required: true
+        type: string
+      subscriptionId:
+        required: true
+        type: string
 env:
   TemplateFile: azureWebAppProvisioning/webAppTemplete.json
   ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
-  resourceGroupName: infraTest
+  # resourceGroupName: infraTest
   region: "UK South"
 
 jobs:
@@ -41,13 +47,13 @@ jobs:
     # Create Dev Resource Group
     - name: Provision Resource Group
       run: |
-        az group create --name ${{ env.resourceGroupName }}ca1 --location "${{env.region}}"
+        az group create --name ${{ inputs.resourceGroupName }}ca1 --location "${{env.region}}"
 
     # Deploy Dev Template
     - name: Deploy ARM Template
       uses: azure/arm-deploy@v2
       with:
-        resourceGroupName: ${{ env.resourceGroupName }}ca1
+        resourceGroupName: ${{ inputs.resourceGroupName }}ca1
         template: ${{ env.TemplateFile }}
         parameters:  ${{ env.ParameterFile }}
         region:  ${{env.region}}
@@ -56,7 +62,10 @@ jobs:
     # Download Publish Profile Artifact from 
     - name: Download Publish Profile
       run: |
-        az webapp deployment list-publishing-profiles --name infraTestbp --resource-group ${{ env.resourceGroupName }}ca1 --subscription ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID}} > dev-profile.json
+        az webapp deployment list-publishing-profiles \
+          --name infraTestbp \
+          --resource-group ${{ inputs.resourceGroupName }}ca1 \
+          --subscription ${{ inputs.subscriptionId }} > dev-profile.json
     
     # Upload Publish Profile Artifact
     - name: Upload Publish Profile as Artifact
@@ -101,5 +110,5 @@ jobs:
       # Delete Resource Group and all resource
       - name: Delete Resource Group
         run: |
-          az group delete --name ${{ env.resourceGroupName }}ca1 -y --no-wait
+          az group delete --name ${{ inputs.resourceGroupName }}ca1 -y --no-wait
           echo "Resource group deletion initiated."
