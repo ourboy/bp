@@ -66,9 +66,9 @@ jobs:
       - name: Extract Publish Profile Details
         id: extract-publish-profile
         run: |
-          PUBLISH_URL=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .publishUrl' qaVerification-profile.json)
-          USER_NAME=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userName' qaVerification-profile.json)
-          USER_PWD=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userPWD' qaVerification-profile.json)
+          PUBLISH_URL=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .publishUrl' ${{ inputs.pipelineStage }}-profile.json)
+          USER_NAME=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userName' ${{ inputs.pipelineStage }}-profile.json)
+          USER_PWD=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userPWD' ${{ inputs.pipelineStage }}-profile.json)
           if [[ -z "$PUBLISH_URL" || -z "$USER_NAME" || -z "$USER_PWD" ]]; then
             echo "Error: Publish profile JSON is incomplete or missing required fields."
             exit 1
