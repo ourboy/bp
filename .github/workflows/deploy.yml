@@ -34,6 +34,7 @@ jobs:
       branch: extend-gitactions
       run_jobs: delete-created-resources
       resourceGroupName: infraTest
+      pipelineStage: infraVerification
     secrets: inherit
 
   build_and_unit_test:
