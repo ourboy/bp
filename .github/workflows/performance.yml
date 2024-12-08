@@ -45,7 +45,7 @@ jobs:
   deploy-bpCalculator:
     name: Deploy BP Calculator to Azure Web App
     runs-on: ubuntu-24.04
-    needs: deploy-production-test-application  # Ensures deployment runs only if build and tests pass
+    needs: deploy-performance-test-application  # Ensures deployment runs only if build and tests pass
     environment:
       name: Performance
       url: performanceTestCA1.azurewebsites.net
