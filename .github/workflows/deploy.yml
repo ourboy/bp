@@ -26,6 +26,7 @@ jobs:
     secrets: inherit
   
   delete_test_infra:
+    needs: test_infra
     name: Test Infrastructure Deployment
     uses: ./.github/workflows/testInfraDeployWorkflow.yaml
     with:
