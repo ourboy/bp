@@ -149,7 +149,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: playwright_tests
     env:
-      TARGET_URL: https://qa-bpcalculator.azurewebsites.net/
+      TARGET_URL: https://${{ inputs.webAppName}}.azurewebsites.net/
     steps:
     - name: Pull Docker image for ZAP
       run: docker pull zaproxy/zap-weekly
