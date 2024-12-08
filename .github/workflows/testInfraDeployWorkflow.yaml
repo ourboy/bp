@@ -7,20 +7,23 @@ on:
       branch:
         required: true
         type: string
-      run_jobs:
+      run_jobs: #List of jobs to run, defaults to running all jobs if not specified
         required: false
         type: string
       resourceGroupName:
         required: true
         type: string
+      pipelineStage:
+        required: true
+        type: string
 
 env:
-  TemplateFile: azureWebAppProvisioning/webAppTemplete.json
-  ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
-  region: "UK South"
+  TemplateFile: azureWebAppProvisioning/webAppTemplete.json # Path to the ARM deployment template file
+  ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json # Path to the parameters file for deployment ARM template
+  region: "UK South" # The Azure region where the resources will be deployed
 
 jobs:
-  provision:
+  provision: # Job to provision the resource group and web app
     if: contains(inputs.run_jobs, 'provision')
     runs-on: ubuntu-24.04
     steps:
@@ -33,12 +36,12 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # Create Dev Resource Group
+    # Create the resource group
     - name: Provision Resource Group
       run: |
         az group create --name ${{ inputs.resourceGroupName }}ca1 --location "${{env.region}}"
 
-    # Deploy Dev Template
+    # Deploy the ARM template to the provisioned resource group
     - name: Deploy ARM Template
       uses: azure/arm-deploy@v2
       with:
@@ -48,22 +51,24 @@ jobs:
         region:  ${{env.region}}
         deploymentMode: Incremental
 
-    # Download Publish Profile Artifact from 
+    # Download the publish profile for the web app
     - name: Download Publish Profile
       run: |
         az webapp deployment list-publishing-profiles \
           --name infraTestbp \
           --resource-group ${{ inputs.resourceGroupName }}ca1 \
-          --subscription ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID }} > dev-profile.json
+          --subscription ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID }} > ${{ inputs.pipelineStage}}-profile.json
     
-    # Upload Publish Profile Artifact
+    # Upload the publish profile artifact for later use
     - name: Upload Publish Profile as Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: publish-profile
-        path: dev-profile.json
+        name: publish-profile # Name of the artifact
+        path: ${{ inputs.pipelineStage}}-profile.json # Path to the publish profile file to be uploaded
+
   
-  verify-profile:
+  verify-profile: # Job to verify the publish profile
+    # Run this job only if 'verify-profile' is listed in 'run_jobs' and after the 'provision' job has completed
     if: contains(inputs.run_jobs, 'verify-profile')
     needs: provision
     runs-on: ubuntu-24.04
@@ -75,19 +80,19 @@ jobs:
           name: publish-profile
           path: .
 
-      # Verify Publish Profile
+      # Verify that the publish profile is valid and non-empty
       - name: Verify Publish Profile Usability
         run: |
-          PROFILE_CONTENT=$(cat dev-profile.json)
+          PROFILE_CONTENT=$(cat ${{ inputs.pipelineStage}}-profile.json)
           if [ -z "$PROFILE_CONTENT" ]; then
             echo "Publish profile is empty or invalid."
             exit 1
           fi
           echo "Publish profile successfully retrieved and is not empty."
   
-  delete-created-resources:
+  delete-created-resources: # Job to delete the created resource group and all associated resources
+    # Run this job only if 'delete-created-resources' is listed in 'run_jobs'
     if: contains(inputs.run_jobs, 'delete-created-resources')
-    # needs: verify-profile
     runs-on: ubuntu-24.04
     steps:
       # Azure Login
@@ -96,7 +101,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Delete Resource Group and all resource
+      # Delete the resource group and all its resources
       - name: Delete Resource Group
         run: |
           az group delete --name ${{ inputs.resourceGroupName }}ca1 -y --no-wait

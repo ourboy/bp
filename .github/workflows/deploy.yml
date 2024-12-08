@@ -23,6 +23,7 @@ jobs:
         provision
         verify-profile
       resourceGroupName: infraTest
+      pipelineStage: infraVerification
     secrets: inherit
   
   delete_test_infra:
