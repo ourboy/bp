@@ -86,7 +86,7 @@ jobs:
     secrets: inherit
 
   deploy-production:
-    name: Build and run unit tests
+    name: Deploy to Production
     uses: ./.github/workflows/performance.yaml
     needs: 
       - deploy-qa
