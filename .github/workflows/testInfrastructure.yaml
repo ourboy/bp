@@ -43,7 +43,7 @@ jobs:
   delete-infratest:
     name: Test Infrastructure Deployment
     uses: ./.github/workflows/InfrastructureDeleteWorkflow.yaml
-    needs: pentesting
+    needs: deploy-infratest
     with:
       branch: update-gitactions
       run_jobs: |
