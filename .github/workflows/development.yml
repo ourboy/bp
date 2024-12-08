@@ -23,7 +23,7 @@ on:
 jobs:
   test_infra:
     name: Test Infrastructure Deployment
-    uses: ./.github/workflows/testInfraDeployWorkflow.yaml
+    uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
     with:
       branch: extend-gitactions
     secrets:
