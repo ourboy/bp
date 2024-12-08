@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       run_jobs: #List of jobs to run, defaults to running all jobs if not specified
-        required: false
+        required: true
         type: string
       resourceGroupName:
         required: true
