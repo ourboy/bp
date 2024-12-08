@@ -83,7 +83,7 @@ jobs:
         delete-performance-test-application
       resourceGroupName: performance
       pipelineStage: performanceVerification
-      armParameterFile: azureWebAppProvisioning/qaTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      armParameterFile: azureWebAppProvisioning/performanceTemplete.parameters.json # Path to the parameters file for deployment ARM template
       appServicePlanName: performanceAppServicePlan
       webAppName: performanceTestCA1
     secrets: inherit
