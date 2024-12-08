@@ -6,7 +6,7 @@
       "value": "infraTestAppServicePlan"
     },
     "skuName": {
-      "value": "B1"
+      "value": "F1"
     },
     "skuTier": {
       "value": "Basic"
@@ -15,10 +15,10 @@
       "value": 1
     },
     "skuSize": {
-      "value": "B1"
+      "value": "F1"
     },
     "skuFamily": {
-      "value": "B"
+      "value": "F"
     },
     "webAppName": {
       "value": "infraTestbp"
