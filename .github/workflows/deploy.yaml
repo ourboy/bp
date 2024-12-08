@@ -18,7 +18,6 @@ jobs:
   test_infra:
     name: Test Infrastructure Deployment
     uses: ./.github/workflows/testInfrastructure.yaml
-
     with:
       branch: update-gitactions
       run_jobs: |
@@ -97,8 +96,8 @@ jobs:
       run_jobs: |
         deploy-performance-test-application
         deploy-bpCalculator
-      resourceGroupName: qa
-      pipelineStage: qaVerification
+      resourceGroupName: production
+      pipelineStage: productionVerification
       armParameterFile: azureWebAppProvisioning/productionTemplete.parameters.json # Path to the parameters file for deployment ARM template
       appServicePlanName: bpCA1AppServicePlan
       webAppName: bpCA1

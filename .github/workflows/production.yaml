@@ -26,7 +26,7 @@ on:
         type: string
 jobs:
   deploy-production-test-application:
-    name: Deploy Non-functional Test Application Infrastructure
+    name: Deploy Production Infrastructure
     uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
     with:
       branch: update-gitactions
@@ -64,9 +64,9 @@ jobs:
       - name: Extract Publish Profile Details
         id: extract-publish-profile
         run: |
-          PUBLISH_URL=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .publishUrl' qaVerification-profile.json)
-          USER_NAME=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userName' qaVerification-profile.json)
-          USER_PWD=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userPWD' qaVerification-profile.json)
+          PUBLISH_URL=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .publishUrl' ${{ inputs.pipelineStage }}-profile.json)
+          USER_NAME=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userName' ${{ inputs.pipelineStage }}-profile.json)
+          USER_PWD=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userPWD' ${{ inputs.pipelineStage }}-profile.json)
           if [[ -z "$PUBLISH_URL" || -z "$USER_NAME" || -z "$USER_PWD" ]]; then
             echo "Error: Publish profile JSON is incomplete or missing required fields."
             exit 1
@@ -87,7 +87,6 @@ jobs:
         uses: azure/webapps-deploy@v2
         with: 
           app-name: ${{ inputs.webAppName}}                          
-          # publish-profile: ./${{ inputs.pipelineStage }}-profile.json
           # slot-name: staging TODO-Remove: Not available on free accounts
           publish-profile: |
             <publishData>
