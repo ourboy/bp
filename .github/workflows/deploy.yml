@@ -81,8 +81,8 @@ jobs:
         performance_tests
         pentesting
         delete-performance-test-application
-      resourceGroupName: qa
-      pipelineStage: qaVerification
+      resourceGroupName: performance
+      pipelineStage: performanceVerification
       armParameterFile: azureWebAppProvisioning/qaTemplete.parameters.json # Path to the parameters file for deployment ARM template
       appServicePlanName: performanceAppServicePlan
       webAppName: performanceTestCA1
