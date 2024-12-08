@@ -71,8 +71,8 @@ jobs:
     name: Deploy Performance system and run performance tests
     uses: ./.github/workflows/performance.yml
     needs: 
-      - test_infra
       - deploy-dev
+      - deploy-qa
     with:
       branch: update-gitactions
       run_jobs: |
