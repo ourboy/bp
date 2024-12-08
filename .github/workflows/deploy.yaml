@@ -18,6 +18,7 @@ jobs:
   test_infra:
     name: Test Infrastructure Deployment
     uses: ./.github/workflows/testInfrastructure.yaml
+
     with:
       branch: update-gitactions
       run_jobs: |
@@ -32,7 +33,7 @@ jobs:
   
   deploy-dev:
     name: Build and run unit tests
-    uses: ./.github/workflows/development.yml
+    uses: ./.github/workflows/development.yaml
     needs: test_infra
     with:
       branch: update-gitactions
@@ -46,7 +47,7 @@ jobs:
 
   deploy-qa:
     name: Deploy QA test system and run QA tests
-    uses: ./.github/workflows/qa.yml
+    uses: ./.github/workflows/qa.yaml
     needs: 
       - test_infra
       - deploy-dev
@@ -67,7 +68,7 @@ jobs:
 
   deploy-performance:
     name: Deploy Performance system and run performance tests
-    uses: ./.github/workflows/performance.yml
+    uses: ./.github/workflows/performance.yaml
     needs: 
       - deploy-dev
       - deploy-qa
@@ -88,7 +89,7 @@ jobs:
 
   deploy-production:
     name: Build and run unit tests
-    uses: ./.github/workflows/performance.yml
+    uses: ./.github/workflows/performance.yaml
     needs: 
       - deploy-qa
       - deploy-performance
