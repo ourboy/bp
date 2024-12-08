@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-const BASE_URL = 'https://test-bpcalculator.azurewebsites.net/';
+const BASE_URL = 'https://qatestca1.azurewebsites.net/';
 
 test(' Calculate Low Blood Pressure correctly', async ({ page }) => {
   await page.goto(BASE_URL);

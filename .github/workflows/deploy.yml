@@ -15,42 +15,42 @@ on:
 #       - develop/*
 #       - 'release/*'
 jobs:
-  # test_infra:
-  #   name: Test Infrastructure Deployment
-  #   uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
-  #   with:
-  #     branch: update-gitactions
-  #     run_jobs: |
-  #       provision
-  #       verify-profile
-  #       delete-created-resources
-  #     resourceGroupName: infraTest
-  #     pipelineStage: infraVerification
-  #     armParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json # Path to the parameters file for deployment ARM template
-  #     appServicePlanName: infraTestAppServicePlan
-  #     webAppName: infraTestbp
-  #   secrets: inherit
+  test_infra:
+    name: Test Infrastructure Deployment
+    uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        provision
+        verify-profile
+        delete-created-resources
+      resourceGroupName: infraTest
+      pipelineStage: infraVerification
+      armParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      appServicePlanName: infraTestAppServicePlan
+      webAppName: infraTestbp
+    secrets: inherit
   
-  # deploy-dev:
-  #   name: Build and run unit tests
-  #   uses: ./.github/workflows/development.yml
-  #   needs: test_infra
-  #   with:
-  #     branch: update-gitactions
-  #     run_jobs: |
-  #       build_and_unit_test
-  #       sonar_code_scan
-  #       bpBDD_tests
-  #     resourceGroupName: development
-  #     pipelineStage: devVerification
-  #   secrets: inherit
+  deploy-dev:
+    name: Build and run unit tests
+    uses: ./.github/workflows/development.yml
+    needs: test_infra
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        build_and_unit_test
+        sonar_code_scan
+        bpBDD_tests
+      resourceGroupName: development
+      pipelineStage: devVerification
+    secrets: inherit
 
   deploy-qa:
     name: Deploy QA test system and run QA tests
     uses: ./.github/workflows/qa.yml
-    # needs: 
-    #   - test_infra
-    #   - deploy-dev
+    needs: 
+      - test_infra
+      - deploy-dev
     with:
       branch: update-gitactions
       run_jobs: |
@@ -66,30 +66,42 @@ jobs:
       webAppName: qaTestCA1
     secrets: inherit
 
-  # deploy-performance:
-  #   name: Deploy Performance system and run performance tests
-  #   uses: ./.github/workflows/performance.yml
-  #   needs: deploy-qa
-  #   with:
-  #     branch: update-gitactions
-  #     run_jobs: |
-  #       deploy
-  #       performance_tests
-  #       pentesting
-  #     resourceGroupName: qa
-  #     pipelineStage: qaVerification
-  #   secrets: inherit
+    
+  deploy-performance:
+    name: Deploy Performance system and run performance tests
+    uses: ./.github/workflows/performance.yml
+    needs: 
+      - test_infra
+      - deploy-dev
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        deploy-performance-test-application
+        deploy-bpCalculator
+        performance_tests
+        pentesting
+        delete-performance-test-application
+      resourceGroupName: qa
+      pipelineStage: qaVerification
+      armParameterFile: azureWebAppProvisioning/qaTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      appServicePlanName: performanceAppServicePlan
+      webAppName: performanceTestCA1
+    secrets: inherit
 
-  # deploy-production:
-  #   name: Build and run unit tests
-  #   uses: ./.github/workflows/performance.yml
-  #   needs: deploy-performance
-  #   with:
-  #     branch: update-gitactions
-  #     run_jobs: |
-  #       deploy
-  #       playwright_tests
-  #       pentesting
-  #     resourceGroupName: qa
-  #     pipelineStage: qaVerification
-  #   secrets: inherit
+  deploy-production:
+    name: Build and run unit tests
+    uses: ./.github/workflows/performance.yml
+    needs: 
+      - deploy-qa
+      - deploy-performance
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        deploy-performance-test-application
+        deploy-bpCalculator
+      resourceGroupName: qa
+      pipelineStage: qaVerification
+      armParameterFile: azureWebAppProvisioning/productionTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      appServicePlanName: bpCA1AppServicePlan
+      webAppName: bpCA1
+    secrets: inherit

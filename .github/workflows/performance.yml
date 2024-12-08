@@ -24,9 +24,11 @@ on:
       webAppName:
         required: true
         type: string
+
+
 jobs:
-  deploy-qa-test-application:
-    name: Deploy QA Test Application Infrastructure
+  deploy-performance-test-application:
+    name: Deploy Non-functional Test Application Infrastructure
     uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
     with:
       branch: update-gitactions
@@ -39,27 +41,27 @@ jobs:
       appServicePlanName: ${{ inputs.appServicePlanName}}
       webAppName: ${{ inputs.webAppName}}
     secrets: inherit
-
+  
   deploy-bpCalculator:
     name: Deploy BP Calculator to Azure Web App
     runs-on: ubuntu-24.04
-    needs: deploy-qa-test-application  # Ensures deployment runs only if deployment of qa test application pass
+    needs: deploy-production-test-application  # Ensures deployment runs only if build and tests pass
     environment:
-      name: QA
-      url: qatestca1.azurewebsites.net
+      name: Performance
+      url: performanceTestCA1.azurewebsites.net
     env: 
-      AZURE_WEBAPP_NAME: qaTestCA1
+      AZURE_WEBAPP_NAME: performanceTestCA1
       AZURE_WEBAPP_PACKAGE_PATH: '${{ inputs.pipelineStage}}-publish-profile'
     steps:
       - uses: actions/checkout@v4
-      
+
       # Retrieve the publish profile artifact
       - name: Download Publish Profile Artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.pipelineStage }}-publish-profile
           path: . # Download it to the working directory
-
+      
       # Extract credentials from publish profile
       - name: Extract Publish Profile Details
         id: extract-publish-profile
@@ -75,13 +77,13 @@ jobs:
           echo "PUBLISH_URL=$PUBLISH_URL" >> $GITHUB_ENV
           echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
           echo "USER_PWD=$USER_PWD" >> $GITHUB_ENV
-    
+
       # publish web app 
       - name: Publish web app
         run: dotnet publish -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp
         env:
           AZURE_WEBAPP_PACKAGE_PATH: '${{ inputs.pipelineStage }}-publish-profile'
-
+      
       # Deploy to Azure app service
       - name: Run Azure webapp deploy action using publish profile credentials
         uses: azure/webapps-deploy@v2
@@ -104,52 +106,50 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-  playwright_tests:
-    name: Run Playwright Tests
-    runs-on: ubuntu-24.04
-    needs: deploy-bpCalculator # Ensures tests run only after deployment completes successfully
-    steps: 
-      - uses: actions/checkout@v4
-
-      # Run Playwright end to end tests
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22'
-
-      # Install dependencies and Playwright
-      - name: Install dependencies and Playwright
-        run: |
-          npm ci
-          npx playwright install --with-deps
-      
-      # Run Playwright tests
-      - name: Run Playwright tests
-        run: |
-          npx playwright test
-        env:
-          BASE_URL: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-      
-      # Upload Playwright report
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
-    
-      # Log in to Azure
-      - name: Log in to Azure
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-        
-  pentesting:
-    name: OWASP Pen testing
+  performance_tests:
+    name: k6 Performance tests
     runs-on: ubuntu-24.04
     needs: playwright_tests
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pull Docker image for k6
+      - name: Pull Docker image for k6
+        run: docker pull grafana/k6
+  
+      # Run k6 Latency test and capture report
+      - name: Run k6 load test, capture report
+        run: docker run -v $GITHUB_WORKSPACE:/mnt/k6 -i grafana/k6 run /mnt/k6/bpK6Performance/latencyTest.js > k6LatencyReport.txt
+
+      # Run k6 concurrency test and capture report
+      - name: Run k6 concurrency test, capture report
+        run: docker run -v $GITHUB_WORKSPACE:/mnt/k6 -i grafana/k6 run /mnt/k6/bpK6Performance/concurrencyTest.js > k6ConcurrencyReport.txt
+      
+      # Run k6 stress test and capture report
+      - name: Run k6 stress test, capture report
+        run: docker run -v $GITHUB_WORKSPACE:/mnt/k6 -i grafana/k6 run /mnt/k6/bpK6Performance/stressTest.js > k6StressReport.txt
+
+      # Run k6 throughput test and capture report
+      - name: Run k6 throughput test, capture report
+        run: docker run -v $GITHUB_WORKSPACE:/mnt/k6 -i grafana/k6 run /mnt/k6/bpK6Performance/throughputTest.js > k6ThroughputReport.txt
+  
+       # Upload k6 report  
+      - uses: actions/upload-artifact@v4
+        with:
+          name: k6report
+          path: | 
+            k6LatencyReport.txt
+            k6ConcurrencyReport.txt
+            k6StressReport.txt
+            k6ThroughputReport.txt
+          retention-days: 30
+
+  pentesting:
+    name: OWASP Pen testing
+    runs-on: ubuntu-latest
+    needs: performance_tests
     env:
-      TARGET_URL: https://qa-bpcalculator.azurewebsites.net/
+      TARGET_URL: https://${{ inputs.webAppName}}.azurewebsites.net/
     steps:
     - name: Pull Docker image for ZAP
       run: docker pull zaproxy/zap-weekly
@@ -164,10 +164,12 @@ jobs:
         path: /report/zapreport.html
         retention-days: 30
   
-  delete-qa-test-application:
+  delete-performance-test-application:
     name: Test Infrastructure Deployment
     uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
-    needs: pentesting
+    needs: 
+      - performance_tests
+      - pentesting
     with:
       branch: update-gitactions
       run_jobs: |
