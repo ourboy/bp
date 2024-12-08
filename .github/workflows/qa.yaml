@@ -174,4 +174,5 @@ jobs:
         delete-created-resources
       resourceGroupName: ${{ inputs.resourceGroupName }}
       pipelineStage: ${{ inputs.pipelineStage }}
-     secrets: inherit
+    secrets: inherit
+
