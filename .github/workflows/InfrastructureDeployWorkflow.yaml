@@ -93,6 +93,7 @@ jobs:
   delete-created-resources: # Job to delete the created resource group and all associated resources
     # Run this job only if 'delete-created-resources' is listed in 'run_jobs'
     if: contains(inputs.run_jobs, 'delete-created-resources')
+    needs: verify-profile
     runs-on: ubuntu-24.04
     steps:
       # Azure Login

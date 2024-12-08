@@ -31,6 +31,7 @@ jobs:
   deploy-dev:
     name: Build and run unit tests
     uses: ./.github/workflows/development.yml
+    needs: test_infra
     with:
       branch: update-gitactions
       run_jobs: |
