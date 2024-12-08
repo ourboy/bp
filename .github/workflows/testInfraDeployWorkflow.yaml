@@ -19,13 +19,10 @@ on:
       resourceGroupName:
         required: true
         type: string
-      subscriptionId:
-        required: true
-        type: string
+
 env:
   TemplateFile: azureWebAppProvisioning/webAppTemplete.json
   ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json
-  # resourceGroupName: infraTest
   region: "UK South"
 
 jobs:
@@ -63,7 +60,7 @@ jobs:
         az webapp deployment list-publishing-profiles \
           --name infraTestbp \
           --resource-group ${{ inputs.resourceGroupName }}ca1 \
-          --subscription ${{ inputs.subscriptionId }} > dev-profile.json
+          --subscription ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID }} > dev-profile.json
     
     # Upload Publish Profile Artifact
     - name: Upload Publish Profile as Artifact
