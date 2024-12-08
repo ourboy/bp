@@ -16,10 +16,18 @@ on:
       pipelineStage:
         required: true
         type: string
+      armParameterFile:
+        required: true
+        type: string
+      appServicePlanName:
+        required: true
+        type: string
+      webAppName:
+        required: true
+        type: string
 
 env:
   TemplateFile: azureWebAppProvisioning/webAppTemplete.json # Path to the ARM deployment template file
-  ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json # Path to the parameters file for deployment ARM template
   region: "UK South" # The Azure region where the resources will be deployed
 
 jobs:
@@ -55,7 +63,7 @@ jobs:
     - name: Download Publish Profile
       run: |
         az webapp deployment list-publishing-profiles \
-          --name infraTestbp \
+          --name ${{ inputs.webAppName }} \
           --resource-group ${{ inputs.resourceGroupName }}ca1 \
           --subscription ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID }} > ${{ inputs.pipelineStage}}-profile.json
     

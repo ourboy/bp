@@ -26,6 +26,9 @@ jobs:
         delete-created-resources
       resourceGroupName: infraTest
       pipelineStage: infraVerification
+      armParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      appServicePlanName: infraTestAppServicePlan
+      webAppName: infraTestbp
     secrets: inherit
   
   deploy-dev:
@@ -43,7 +46,7 @@ jobs:
     secrets: inherit
 
   deploy-qa:
-    name: Build and run unit tests
+    name: Deploy QA test system and run QA tests
     uses: ./.github/workflows/qa.yml
     needs: deploy-dev
     with:
@@ -56,10 +59,13 @@ jobs:
         delete-qa-test-application
       resourceGroupName: qa
       pipelineStage: qaVerification
+      armParameterFile: azureWebAppProvisioning/qaTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      appServicePlanName: qaAppServicePlan
+      webAppName: qaTestCA1
     secrets: inherit
 
   # deploy-performance:
-  #   name: Build and run unit tests
+  #   name: Deploy Performance system and run performance tests
   #   uses: ./.github/workflows/performance.yml
   #   needs: deploy-qa
   #   with:

@@ -15,7 +15,15 @@ on:
       pipelineStage:
         required: true
         type: string
-
+      armParameterFile:
+        required: true
+        type: string
+      appServicePlanName:
+        required: true
+        type: string
+      webAppName:
+        required: true
+        type: string
 jobs:
   deploy-qa-test-application:
     name: Deploy QA Test Application Infrastructure
@@ -27,6 +35,10 @@ jobs:
         verify-profile
       resourceGroupName: ${{ inputs.resourceGroupName }}
       pipelineStage: ${{ inputs.pipelineStage }}
+      armParameterFile: ${{ inputs.armParameterFile }} # Path to the parameters file for deployment ARM template
+      appServicePlanName: ${{ inputs.appServicePlanName}}
+      webAppName: ${{ inputs.webAppName}}
+
     secrets: inherit
 
   deploy-bpCalculator:
