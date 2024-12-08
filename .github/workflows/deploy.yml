@@ -48,7 +48,9 @@ jobs:
   deploy-qa:
     name: Deploy QA test system and run QA tests
     uses: ./.github/workflows/qa.yml
-    needs: deploy-dev
+    needs: 
+      - test_infra
+      - deploy-dev
     with:
       branch: update-gitactions
       run_jobs: |

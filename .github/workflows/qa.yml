@@ -47,9 +47,9 @@ jobs:
     needs: deploy-qa-test-application  # Ensures deployment runs only if deployment of qa test application pass
     environment:
       name: QA
-      url: qa-bpcalculator.azurewebsites.net
+      url: qatestca1.azurewebsites.net
     env: 
-      AZURE_WEBAPP_NAME: qa-bpcalculator
+      AZURE_WEBAPP_NAME: qaTestCA1
       AZURE_WEBAPP_PACKAGE_PATH: '${{ inputs.pipelineStage}}-publish-profile'
     steps:
       - uses: actions/checkout@v4
