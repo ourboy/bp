@@ -78,7 +78,6 @@ jobs:
         deploy-performance-test-application
         deploy-bpCalculator
         performance_tests
-        pentesting
         delete-performance-test-application
       resourceGroupName: performance
       pipelineStage: performanceVerification
