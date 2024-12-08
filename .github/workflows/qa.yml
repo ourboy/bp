@@ -53,24 +53,55 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      # publish web app 
-      - name: Publish web app
-        run: dotnet publish -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp
-
       # Retrieve the publish profile artifact
       - name: Download Publish Profile Artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.pipelineStage }}-publish-profile
           path: . # Download it to the working directory
-      
+
+      # - name: Inspect Publish Profile
+      #   run: |
+      #     jq '.' ${{ inputs.pipelineStage }}-profile.json || cat ${{ inputs.pipelineStage }}-profile.json
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Extract credentials from publish profile
+      - name: Extract Publish Profile Details
+        id: extract-publish-profile
+        run: |
+          PUBLISH_URL=$(jq -r '.publishUrl' ${{ inputs.pipelineStage }}-profile.json)
+          USER_NAME=$(jq -r '.userName' ${{ inputs.pipelineStage }}-profile.json)
+          USER_PWD=$(jq -r '.userPWD' ${{ inputs.pipelineStage }}-profile.json)
+
+          if [[ -z "$PUBLISH_URL" || -z "$USER_NAME" || -z "$USER_PWD" ]]; then
+            echo "Error: Publish profile JSON is incomplete or missing required fields."
+            exit 1
+          fi
+
+          echo "PUBLISH_URL=$PUBLISH_URL" >> $GITHUB_ENV
+          echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
+          echo "USER_PWD=$USER_PWD" >> $GITHUB_ENV
+
+      # publish web app 
+      - name: Publish web app
+        run: dotnet publish -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp
+        env:
+          AZURE_WEBAPP_PACKAGE_PATH: '${{ inputs.pipelineStage }}-publish-profile'
+
       # Deploy to Azure app service
       - name: Run Azure webapp deploy action using publish profile credentials
         uses: azure/webapps-deploy@v2
         with: 
           app-name: ${{ inputs.webAppName}}                          
-          publish-profile: ./${{ inputs.pipelineStage }}-profile.json
+          # publish-profile: ./${{ inputs.pipelineStage }}-profile.json
           # slot-name: staging TODO-Remove: Not available on free accounts
+          publish-profile: |
+            <publishData>
+              <publishProfile profileName="GitHubActions" publishMethod="MSDeploy" 
+                              publishUrl="${{ env.PUBLISH_URL }}"
+                              userName="${{ env.USER_NAME }}" 
+                              userPWD="${{ env.USER_PWD }}" />
+            </publishData>
           package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
       
       # Log in to Azure
