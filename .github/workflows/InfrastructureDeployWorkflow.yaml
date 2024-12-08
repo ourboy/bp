@@ -55,7 +55,7 @@ jobs:
       with:
         resourceGroupName: ${{ inputs.resourceGroupName }}ca1
         template: ${{ env.TemplateFile }}
-        parameters:  ${{ env.ParameterFile }}
+        parameters:  ${{ inputs.armParameterFile }}
         region:  ${{env.region}}
         deploymentMode: Incremental
 
