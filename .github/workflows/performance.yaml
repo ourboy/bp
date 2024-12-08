@@ -147,9 +147,7 @@ jobs:
   delete-performance-test-application:
     name: Test Infrastructure Deployment
     uses: ./.github/workflows/InfrastructureDeleteWorkflow.yaml
-    needs: 
-      - performance_tests
-      - pentesting
+    needs: performance_tests
     with:
       branch: update-gitactions
       run_jobs: |
