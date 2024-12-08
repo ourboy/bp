@@ -12,116 +12,34 @@ on:
 #   push:
 #     branches:
 #       - main
+#       - develop/*
 #       - 'release/*'
 jobs:
   test_infra:
     name: Test Infrastructure Deployment
-    uses: ./.github/workflows/testInfraDeployWorkflow.yaml
+    uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
     with:
-      branch: extend-gitactions
+      branch: update-gitactions
       run_jobs: |
         provision
         verify-profile
+        delete-created-resources
       resourceGroupName: infraTest
       pipelineStage: infraVerification
     secrets: inherit
   
-  delete_test_infra:
-    needs: test_infra
-    name: Test Infrastructure Deployment
-    uses: ./.github/workflows/testInfraDeployWorkflow.yaml
+  deploy-dev:
+    name: Build and run unit tests
+    uses: ./.github/workflows/development.yml
     with:
-      branch: extend-gitactions
-      run_jobs: delete-created-resources
-      resourceGroupName: infraTest
-      pipelineStage: infraVerification
+      branch: update-gitactions
+      run_jobs: |
+        build_and_unit_test
+        sonar_code_scan
+        bpBDD_tests
+      resourceGroupName: development
+      pipelineStage: devVerification
     secrets: inherit
-
-  build_and_unit_test:
-    name: build and run unit tests
-    needs: test_infra
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: '8.0'
-      - name: Build, Run Unit tests, Generate code coverage
-        run: | 
-          dotnet build -c Release
-          dotnet test bpUnitTestProject/bpUnitTestProject.csproj --collect "XPlat Code coverage"
-          dotnet tool install -g dotnet-reportgenerator-globaltool
-          reportgenerator -reports:"./bpUnitTestProject/TestResults/*/coverage.cobertura.xml" -targetdir:"./bpUnitTestProject/coverage-report" -reporttypes:Html
-
-      - name: Publish test results and code coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage
-          path: ./bpUnitTestProject/TestResults/
-
-      - name: Upload code coverage HTML report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html-report
-          path: ./bpUnitTestProject/coverage-report/
-          retention-days: 30
-      - name: Run OWASP Dependency-Check
-        uses: dependency-check/Dependency-Check_Action@main
-        with:
-          project: BPCA1
-          scan: .
-          format: ALL  # Generates all report types (HTML, XML, JSON, etc.)
-          failCriteria: medium  # Fail the workflow on vulnerabilities of severity 'low' or higher
-        
-      - name: Upload OWASP Dependency-Check report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Depcheck report
-          path: ${{github.workspace}}/reports
-          retention-days: 30
-  
-  sonar_code_scan:
-    name: SonarCloud Scan
-    runs-on: ubuntu-24.04
-    needs: build_and_unit_test
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.organization=fconnolly
-            -Dsonar.projectKey=fconnolly_bp-ca1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_CLOUD_TOKEN }}
-        
-  bpBDD_tests:
-    name: Run BPValidation and BPCalculator BDD Tests
-    runs-on: ubuntu-24.04
-    needs: build_and_unit_test 
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: '8.0'
-
-      - name: Run BDD Tests
-        run: |
-          dotnet test AcceptanceTest/ --logger:"html;LogFileName=BDDTestResults.html" --results-directory ./AcceptanceTest/BDDTestResults
-
-      - name: Upload bpBDD Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: bpBDD-test-results
-          path: ./AcceptanceTest/BDDTestResults/BDDTestResults.html
-          retention-days: 30
-  
 
   # deploy:
   #   name: Deploy to Azure Web App
