@@ -143,4 +143,7 @@ jobs:
         delete-created-resources
       resourceGroupName: ${{ inputs.resourceGroupName }}
       pipelineStage: ${{ inputs.pipelineStage }}
+      armParameterFile: ${{ inputs.armParameterFile }} # Path to the parameters file for deployment ARM template
+      appServicePlanName: ${{ inputs.appServicePlanName}}
+      webAppName: ${{ inputs.webAppName}}
     secrets: inherit
