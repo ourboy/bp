@@ -1,14 +1,8 @@
+# Reusable workflow to create Resource Group and WebApp
 name: Infrastructure Provision Test
 
 on:
-  # workflow_run:
-  #   workflows: ["deploy.yaml"]
-  #   types:
-  #     - requested
   workflow_call:
-    secrets:
-      AZURE_CREDENTIALS:
-        required: true
     inputs:
       branch:
         required: true
