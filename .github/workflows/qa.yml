@@ -25,9 +25,8 @@ jobs:
       run_jobs: |
         provision
         verify-profile
-        delete-created-resources
-      resourceGroupName: ${{ input.resourceGroupName }}
-      pipelineStage: ${{ input.pipelineStage }}
+      resourceGroupName: ${{ inputs.resourceGroupName }}
+      pipelineStage: ${{ inputs.pipelineStage }}
     secrets: inherit
 
   deploy-bpCalculator:
@@ -129,9 +128,7 @@ jobs:
     with:
       branch: update-gitactions
       run_jobs: |
-        provision
-        verify-profile
         delete-created-resources
-      resourceGroupName: ${{ input.resourceGroupName }}
-      pipelineStage: ${{ input.pipelineStage }}
+      resourceGroupName: ${{ inputs.resourceGroupName }}
+      pipelineStage: ${{ inputs.pipelineStage }}
     secrets: inherit
