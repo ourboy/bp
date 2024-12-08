@@ -69,10 +69,9 @@ jobs:
       - name: Extract Publish Profile Details
         id: extract-publish-profile
         run: |
-          PUBLISH_URL=$(jq -r '.publishUrl' ${{ inputs.pipelineStage }}-profile.json)
-          USER_NAME=$(jq -r '.userName' ${{ inputs.pipelineStage }}-profile.json)
-          USER_PWD=$(jq -r '.userPWD' ${{ inputs.pipelineStage }}-profile.json)
-
+          PUBLISH_URL=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .publishUrl' qaVerification-profile.json)
+          USER_NAME=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userName' qaVerification-profile.json)
+          USER_PWD=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userPWD' qaVerification-profile.json)
           if [[ -z "$PUBLISH_URL" || -z "$USER_NAME" || -z "$USER_PWD" ]]; then
             echo "Error: Publish profile JSON is incomplete or missing required fields."
             exit 1
@@ -81,7 +80,13 @@ jobs:
           echo "PUBLISH_URL=$PUBLISH_URL" >> $GITHUB_ENV
           echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
           echo "USER_PWD=$USER_PWD" >> $GITHUB_ENV
-
+      - name: Debug Extracted Variables
+        run: |
+          echo "Publish URL: $PUBLISH_URL"
+          echo "Username: $USER_NAME"
+          echo "Password: $USER_PWD"
+        shell: bash
+    
       # publish web app 
       - name: Publish web app
         run: dotnet publish -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp
