@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       run_jobs: #List of jobs to run, defaults to running all jobs if not specified
-        required: false
+        required: true
         type: string
       resourceGroupName:
         required: true
@@ -166,7 +166,7 @@ jobs:
   
   delete-performance-test-application:
     name: Test Infrastructure Deployment
-    uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
+    uses: ./.github/workflows/InfrastructureDeleteWorkflow.yaml
     needs: 
       - performance_tests
       - pentesting
@@ -176,7 +176,4 @@ jobs:
         delete-created-resources
       resourceGroupName: ${{ inputs.resourceGroupName }}
       pipelineStage: ${{ inputs.pipelineStage }}
-      armParameterFile: ${{ inputs.armParameterFile }} # Path to the parameters file for deployment ARM template
-      appServicePlanName: ${{ inputs.appServicePlanName}}
-      webAppName: ${{ inputs.webAppName}}
     secrets: inherit

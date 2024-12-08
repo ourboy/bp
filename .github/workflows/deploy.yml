@@ -17,13 +17,12 @@ on:
 jobs:
   test_infra:
     name: Test Infrastructure Deployment
-    uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
+    uses: ./.github/workflows/testInfrastructure.yaml
     with:
       branch: update-gitactions
       run_jobs: |
-        provision
-        verify-profile
-        delete-created-resources
+        deploy-infratest
+        delete-infratest
       resourceGroupName: infraTest
       pipelineStage: infraVerification
       armParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json # Path to the parameters file for deployment ARM template
@@ -66,7 +65,6 @@ jobs:
       webAppName: qaTestCA1
     secrets: inherit
 
-    
   deploy-performance:
     name: Deploy Performance system and run performance tests
     uses: ./.github/workflows/performance.yml

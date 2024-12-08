@@ -166,7 +166,7 @@ jobs:
   
   delete-qa-test-application:
     name: Test Infrastructure Deployment
-    uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
+    uses: ./.github/workflows/InfrastructureDeleteWorkflow.yaml
     needs: pentesting
     with:
       branch: update-gitactions
@@ -174,7 +174,4 @@ jobs:
         delete-created-resources
       resourceGroupName: ${{ inputs.resourceGroupName }}
       pipelineStage: ${{ inputs.pipelineStage }}
-      armParameterFile: ${{ inputs.armParameterFile }} # Path to the parameters file for deployment ARM template
-      appServicePlanName: ${{ inputs.appServicePlanName}}
-      webAppName: ${{ inputs.webAppName}}
-    secrets: inherit
+     secrets: inherit
