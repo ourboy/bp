@@ -3,20 +3,18 @@ name: Build and Test BP Calculator
 on:
   push:
     branches:
-      # - master
-      - '*'  # Run on all Branches  
-  pull_request:
-    branches:
-        - '*'
-# on:
-#   push:
-#     branches:
-#       - main
-#       - develop/*
-#       - 'release/*'
+      - main
+      - develop
+      - 'release/*'
+      - 'hotfix/*'
+
 jobs:
   test_infra:
     name: Test Infrastructure Deployment
+    if: |
+      startsWith(github.ref, 'refs/heads/develop') ||
+      startsWith(github.ref, 'refs/heads/release/') ||
+      startsWith(github.ref, 'refs/heads/hotfix/')
     uses: ./.github/workflows/testInfrastructure.yaml
     with:
       branch: update-gitactions
@@ -32,6 +30,10 @@ jobs:
   
   deploy-dev:
     name: Build and run unit tests
+    if: |
+      startsWith(github.ref, 'refs/heads/develop') ||
+      startsWith(github.ref, 'refs/heads/release/') ||
+      startsWith(github.ref, 'refs/heads/hotfix/')
     uses: ./.github/workflows/development.yaml
     needs: test_infra
     with:
@@ -46,6 +48,10 @@ jobs:
 
   deploy-qa:
     name: Deploy QA test system and run QA tests
+    if: |
+      startsWith(github.ref, 'refs/heads/develop') ||
+      startsWith(github.ref, 'refs/heads/release/') ||
+      startsWith(github.ref, 'refs/heads/hotfix/')
     uses: ./.github/workflows/qa.yaml
     needs: 
       - test_infra
@@ -67,6 +73,10 @@ jobs:
 
   deploy-performance:
     name: Deploy Performance system and run performance tests
+    if: |
+      startsWith(github.ref, 'refs/heads/develop') ||
+      startsWith(github.ref, 'refs/heads/release/') ||
+      startsWith(github.ref, 'refs/heads/hotfix/')
     uses: ./.github/workflows/performance.yaml
     needs: 
       - deploy-dev
@@ -87,7 +97,8 @@ jobs:
 
   deploy-production:
     name: Deploy to Production
-    uses: ./.github/workflows/performance.yaml
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/production.yaml
     needs: 
       - deploy-qa
       - deploy-performance
