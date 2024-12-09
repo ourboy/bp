@@ -5,13 +5,13 @@ on:
     branches:
       - master
       - develop
-      - 'release/*'
+      - release
       - 'hotfix/*'
   pull_request:
     branches:
       - master
       - develop
-      - 'release/*'
+      - release
       - 'hotfix/*'
 
 
@@ -22,7 +22,7 @@ jobs:
       github.event_name == 'pull_request' && (startsWith(github.base_ref, 'develop') || startsWith(github.base_ref, 'release') || startsWith(github.base_ref, 'hotfix'))
     uses: ./.github/workflows/testInfrastructure.yaml
     with:
-      branch: update-gitactions
+      branch: '*'
       run_jobs: |
         deploy-infratest
         delete-infratest
@@ -40,7 +40,7 @@ jobs:
     uses: ./.github/workflows/development.yaml
     needs: test_infra
     with:
-      branch: update-gitactions
+      branch: '*'
       run_jobs: |
         build_and_unit_test
         sonar_code_scan
@@ -58,7 +58,7 @@ jobs:
       - test_infra
       - deploy-dev
     with:
-      branch: update-gitactions
+      branch: '*'
       run_jobs: |
         deploy-qa-test-application
         deploy-bpCalculator
@@ -81,7 +81,7 @@ jobs:
       - deploy-dev
       - deploy-qa
     with:
-      branch: update-gitactions
+      branch: '*'
       run_jobs: |
         deploy-performance-test-application
         deploy-bpCalculator
@@ -99,11 +99,8 @@ jobs:
     if: |
       github.event_name == 'pull_request' && (startsWith(github.base_ref, 'release') || startsWith(github.base_ref, 'hotfix'))
     uses: ./.github/workflows/staging.yaml
-    needs: 
-      - deploy-qa
-      - deploy-performance
     with:
-      branch: update-gitactions
+      branch: '*'
       run_jobs: |
         deploy-staging-application
         deploy-bpCalculator
@@ -122,7 +119,7 @@ jobs:
     uses: ./.github/workflows/production.yaml
 
     with:
-      branch: update-gitactions
+      branch: '*'
       run_jobs: |
         deploy-production-application
         deploy-bpCalculator

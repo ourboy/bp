@@ -10,6 +10,7 @@ namespace CA1.BDD
     private BloodPressure bloodPressure;
     private BPCategory actualCategory;
 
+    private string? recommendation;  // Declare recommendation
   public BloodPressureCategorySteps()
   {
     // Initialize bloodPressure to a non-null value
@@ -29,6 +30,7 @@ namespace CA1.BDD
     public void WhenIClickSubmitAndCheckTheBP()
     {
       actualCategory = bloodPressure.Category;
+      recommendation = bloodPressure.GetRecommendation();
     }
 
     [Then(@"the category should be (.*)")]
@@ -39,5 +41,11 @@ namespace CA1.BDD
       Assert.AreEqual(expected, actualCategory, 
         $"Expected category '{expected}' but got '{actualCategory}'.");
     }
+
+    [Then(@"the recommendation should be ""(.*)""")]
+      public void ThenTheRecommendationShouldBe(string expectedRecommendation)
+      {
+        Assert.AreEqual(expectedRecommendation, recommendation);
+      }
   }
 }
