@@ -99,11 +99,7 @@ jobs:
     if: |
       github.event_name == 'pull_request' && (startsWith(github.base_ref, 'release') || startsWith(github.base_ref, 'hotfix'))
     uses: ./.github/workflows/staging.yaml
-    needs: 
-      - deploy-qa
-      - deploy-performance
     with:
-      branch: update-gitactions
       run_jobs: |
         deploy-staging-application
         deploy-bpCalculator
