@@ -30,7 +30,16 @@
                 <div class="form-group">
                     @Html.DisplayFor(model => model.BP.Category, new { htmlAttributes = new { @class = "form-control" } })
                 </div>
-            }
+
+                @if (!string.IsNullOrEmpty(Model.Recommendation))
+                {
+                    <div class="form-group">
+                        <label><strong>Recommendation:</strong></label>
+                        <div class="alert alert-info">
+                            @Model.Recommendation
+                        </div>
+                    </div>
+                }
         </form>
     </div>
 </div>
