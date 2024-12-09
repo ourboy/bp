@@ -31,48 +31,33 @@ namespace BPCalculator
     {
       get
       {
-				if ((Systolic < 90 ) && (Diastolic < 60))
+        BPCategory category = BPCategory.Ideal; // Default category
+
+        // High BP takes precedence if either value is in the high range
+        if (Systolic >= 140 || Diastolic >= 90)
         {
-          return BPCategory.Low;
+            category = BPCategory.High;
+        }
+        // Low BP takes precedence if both values are in the low range
+        else if (Systolic < 90 && Diastolic < 60)
+        {
+            category = BPCategory.Low;
+        }
+        // Pre-High BP if systolic or diastolic falls into the pre-high range
+        else if ((Systolic >= 121 && Systolic <= 139) || (Diastolic >= 81 && Diastolic <= 89))
+        {
+            category = BPCategory.PreHigh;
+        }
+        // Ideal BP if systolic and diastolic values are within the ideal range
+        else if (Systolic >= 90 && Systolic <= 120 && Diastolic >= 60 && Diastolic <= 80)
+        {
+            category = BPCategory.Ideal;
         }
 
-        else if (Systolic >= 90 && Systolic <=120 )
-        {
-          if ( Diastolic < 60)
-          {
-            return BPCategory.Low;
-          }
-          if ( Diastolic >= 60 && Diastolic <= 80)
-          {
-						return BPCategory.Ideal;
-					}
-          else if (Diastolic >= 81 && Diastolic <= 89)
-					{
-						return BPCategory.PreHigh;
-					}
-					else
-					{
-						return BPCategory.High;
-					}
-				}
+        return category;
 
-        else if (Systolic >= 121 && Systolic <= 139)
-        {
-					if (Diastolic >= 60 && Diastolic <= 89)
-					{
-						return BPCategory.PreHigh;
-					}
-					else
-					{
-						return BPCategory.High;
-					}
-				}
-
-        else
-        {
-				  return BPCategory.High;
-        }
       }
+    
     }
   }
 }
