@@ -100,7 +100,6 @@ jobs:
       github.event_name == 'pull_request' && (startsWith(github.base_ref, 'release') || startsWith(github.base_ref, 'hotfix'))
     uses: ./.github/workflows/staging.yaml
     with:
-      branch: update-gitactions
       run_jobs: |
         deploy-staging-application
         deploy-bpCalculator
