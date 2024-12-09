@@ -6,7 +6,7 @@
       "value": "qaAppServicePlan"
     },
     "skuName": {
-      "value": "B1"
+      "value": "B2"
     },
     "skuTier": {
       "value": "Basic"
@@ -15,7 +15,7 @@
       "value": 1
     },
     "skuSize": {
-      "value": "B1"
+      "value": "B2"
     },
     "skuFamily": {
       "value": "B"

@@ -1,0 +1,177 @@
+name: Build and Test BP Calculator
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+      run_jobs: #List of jobs to run, defaults to running all jobs if not specified
+        required: true
+        type: string
+      resourceGroupName:
+        required: true
+        type: string
+      pipelineStage:
+        required: true
+        type: string
+      armParameterFile:
+        required: true
+        type: string
+      appServicePlanName:
+        required: true
+        type: string
+      webAppName:
+        required: true
+        type: string
+jobs:
+  deploy-qa-test-application:
+    name: Deploy QA Test Application Infrastructure
+    uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        provision
+        verify-profile
+      resourceGroupName: ${{ inputs.resourceGroupName }}
+      pipelineStage: ${{ inputs.pipelineStage }}
+      armParameterFile: ${{ inputs.armParameterFile }} # Path to the parameters file for deployment ARM template
+      appServicePlanName: ${{ inputs.appServicePlanName}}
+      webAppName: ${{ inputs.webAppName}}
+    secrets: inherit
+
+  deploy-bpCalculator:
+    name: Deploy BP Calculator to Azure Web App
+    runs-on: ubuntu-24.04
+    needs: deploy-qa-test-application  # Ensures deployment runs only if deployment of qa test application pass
+    environment:
+      name: QA
+      url: qatestca1.azurewebsites.net
+    env: 
+      AZURE_WEBAPP_NAME: qaTestCA1
+      AZURE_WEBAPP_PACKAGE_PATH: '${{ inputs.pipelineStage}}-publish-profile'
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Retrieve the publish profile artifact
+      - name: Download Publish Profile Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.pipelineStage }}-publish-profile
+          path: . # Download it to the working directory
+
+      # Extract credentials from publish profile
+      - name: Extract Publish Profile Details
+        id: extract-publish-profile
+        run: |
+          PUBLISH_URL=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .publishUrl' ${{ inputs.pipelineStage }}-profile.json)
+          USER_NAME=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userName' ${{ inputs.pipelineStage }}-profile.json)
+          USER_PWD=$(jq -r '.[] | select(.publishMethod == "MSDeploy") | .userPWD' ${{ inputs.pipelineStage }}-profile.json)
+          if [[ -z "$PUBLISH_URL" || -z "$USER_NAME" || -z "$USER_PWD" ]]; then
+            echo "Error: Publish profile JSON is incomplete or missing required fields."
+            exit 1
+          fi
+
+          echo "PUBLISH_URL=$PUBLISH_URL" >> $GITHUB_ENV
+          echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
+          echo "USER_PWD=$USER_PWD" >> $GITHUB_ENV
+    
+      # publish web app 
+      - name: Publish web app
+        run: dotnet publish -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp
+        env:
+          AZURE_WEBAPP_PACKAGE_PATH: '${{ inputs.pipelineStage }}-publish-profile'
+
+      # Deploy to Azure app service
+      - name: Run Azure webapp deploy action using publish profile credentials
+        uses: azure/webapps-deploy@v2
+        with: 
+          app-name: ${{ inputs.webAppName}}                          
+          # slot-name: staging TODO-Remove: Not available on free accounts
+          publish-profile: |
+            <publishData>
+              <publishProfile profileName="GitHubActions" publishMethod="MSDeploy" 
+                              publishUrl="${{ env.PUBLISH_URL }}"
+                              userName="${{ env.USER_NAME }}" 
+                              userPWD="${{ env.USER_PWD }}" />
+            </publishData>
+          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
+      
+      # Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  playwright_tests:
+    name: Run Playwright Tests
+    runs-on: ubuntu-24.04
+    needs: deploy-bpCalculator # Ensures tests run only after deployment completes successfully
+    steps: 
+      - uses: actions/checkout@v4
+
+      # Run Playwright end to end tests
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      # Install dependencies and Playwright
+      - name: Install dependencies and Playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps
+      
+      # Run Playwright tests
+      - name: Run Playwright tests
+        run: |
+          npx playwright test
+        env:
+          BASE_URL: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      
+      # Upload Playwright report
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+    
+      # Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+  pentesting:
+    name: OWASP Pen testing
+    runs-on: ubuntu-24.04
+    needs: playwright_tests
+    env:
+      TARGET_URL: https://${{ inputs.webAppName}}.azurewebsites.net/
+    steps:
+    - name: Pull Docker image for ZAP
+      run: docker pull zaproxy/zap-weekly
+
+    - name: Run baseline scan
+      run: docker run -v /report:/zap/wrk/:rw --user root -t zaproxy/zap-weekly zap-baseline.py -t $TARGET_URL -I -r zapreport.html
+  
+    - uses: actions/upload-artifact@v4
+      name: upload ZAP report
+      with:
+        name: ZAPreport
+        path: /report/zapreport.html
+        retention-days: 30
+  
+  delete-qa-test-application:
+    name: Test Infrastructure Deployment
+    uses: ./.github/workflows/InfrastructureDeleteWorkflow.yaml
+    needs: pentesting
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        delete-created-resources
+      resourceGroupName: ${{ inputs.resourceGroupName }}
+      pipelineStage: ${{ inputs.pipelineStage }}
+    secrets: inherit
+

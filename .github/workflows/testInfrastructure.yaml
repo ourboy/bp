@@ -1,0 +1,53 @@
+name: Build and Test BP Calculator
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+      run_jobs: #List of jobs to run, defaults to running all jobs if not specified
+        required: true
+        type: string
+      resourceGroupName:
+        required: true
+        type: string
+      pipelineStage:
+        required: true
+        type: string
+      armParameterFile:
+        required: true
+        type: string
+      appServicePlanName:
+        required: true
+        type: string
+      webAppName:
+        required: true
+        type: string
+jobs:
+  deploy-infratest:
+    name: Deploy QA Test Application Infrastructure
+    uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        provision
+        verify-profile
+      resourceGroupName: ${{ inputs.resourceGroupName }}
+      pipelineStage: ${{ inputs.pipelineStage }}
+      armParameterFile: ${{ inputs.armParameterFile }} # Path to the parameters file for deployment ARM template
+      appServicePlanName: ${{ inputs.appServicePlanName}}
+      webAppName: ${{ inputs.webAppName}}
+    secrets: inherit
+
+  delete-infratest:
+    name: Test Infrastructure Deployment
+    uses: ./.github/workflows/InfrastructureDeleteWorkflow.yaml
+    needs: deploy-infratest
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        delete-created-resources
+      resourceGroupName: ${{ inputs.resourceGroupName }}
+      pipelineStage: ${{ inputs.pipelineStage }}
+    secrets: inherit

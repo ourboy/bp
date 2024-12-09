@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-const BASE_URL = 'https://test-bpcalculator.azurewebsites.net/';
+const BASE_URL = 'https://qatestca1.azurewebsites.net/';
 
 
 test('Negative Systolic value: error message thrown', async ({ page }) => {

@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       run_jobs: #List of jobs to run, defaults to running all jobs if not specified
-        required: false
+        required: true
         type: string
       resourceGroupName:
         required: true
@@ -16,10 +16,18 @@ on:
       pipelineStage:
         required: true
         type: string
+      armParameterFile:
+        required: true
+        type: string
+      appServicePlanName:
+        required: true
+        type: string
+      webAppName:
+        required: true
+        type: string
 
 env:
   TemplateFile: azureWebAppProvisioning/webAppTemplete.json # Path to the ARM deployment template file
-  ParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json # Path to the parameters file for deployment ARM template
   region: "UK South" # The Azure region where the resources will be deployed
 
 jobs:
@@ -47,7 +55,7 @@ jobs:
       with:
         resourceGroupName: ${{ inputs.resourceGroupName }}ca1
         template: ${{ env.TemplateFile }}
-        parameters:  ${{ env.ParameterFile }}
+        parameters:  ${{ inputs.armParameterFile }}
         region:  ${{env.region}}
         deploymentMode: Incremental
 
@@ -55,7 +63,7 @@ jobs:
     - name: Download Publish Profile
       run: |
         az webapp deployment list-publishing-profiles \
-          --name infraTestbp \
+          --name ${{ inputs.webAppName }} \
           --resource-group ${{ inputs.resourceGroupName }}ca1 \
           --subscription ${{ secrets.INFRA_AZURE_SUBSCRIPTION_ID }} > ${{ inputs.pipelineStage}}-profile.json
     
@@ -63,7 +71,7 @@ jobs:
     - name: Upload Publish Profile as Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: publish-profile # Name of the artifact
+        name: ${{ inputs.pipelineStage}}-publish-profile # Name of the artifact
         path: ${{ inputs.pipelineStage}}-profile.json # Path to the publish profile file to be uploaded
 
   
@@ -77,7 +85,7 @@ jobs:
       - name: Download Publish Profile Artifact
         uses: actions/download-artifact@v4
         with:
-          name: publish-profile
+          name: ${{ inputs.pipelineStage}}-publish-profile
           path: .
 
       # Verify that the publish profile is valid and non-empty
@@ -90,19 +98,20 @@ jobs:
           fi
           echo "Publish profile successfully retrieved and is not empty."
   
-  delete-created-resources: # Job to delete the created resource group and all associated resources
-    # Run this job only if 'delete-created-resources' is listed in 'run_jobs'
-    if: contains(inputs.run_jobs, 'delete-created-resources')
-    runs-on: ubuntu-24.04
-    steps:
-      # Azure Login
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  # delete-created-resources: # Job to delete the created resource group and all associated resources
+  #   # Run this job only if 'delete-created-resources' is listed in 'run_jobs'
+  #   if: contains(inputs.run_jobs, 'delete-created-resources')
+  #   # needs: verify-profile
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     # Azure Login
+  #     - name: Login to Azure
+  #       uses: azure/login@v2
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Delete the resource group and all its resources
-      - name: Delete Resource Group
-        run: |
-          az group delete --name ${{ inputs.resourceGroupName }}ca1 -y --no-wait
-          echo "Resource group deletion initiated."
+  #     # Delete the resource group and all its resources
+  #     - name: Delete Resource Group
+  #       run: |
+  #         az group delete --name ${{ inputs.resourceGroupName }}ca1 -y --no-wait
+  #         echo "Resource group deletion initiated."
