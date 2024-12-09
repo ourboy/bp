@@ -3,6 +3,122 @@ name: Build and Test BP Calculator
 on:
   push:
     branches:
+      - main
+      - develop
+      - 'release/*'
+      - 'hotfix/*'
+
+jobs:
+  test_infra:
+    name: Test Infrastructure Deployment
+    if: |
+      startsWith(github.ref, 'refs/heads/develop') ||
+      startsWith(github.ref, 'refs/heads/release/') ||
+      startsWith(github.ref, 'refs/heads/hotfix/')
+    uses: ./.github/workflows/testInfrastructure.yaml
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        deploy-infratest
+        delete-infratest
+      resourceGroupName: infraTest
+      pipelineStage: infraVerification
+      armParameterFile: azureWebAppProvisioning/infraTestTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      appServicePlanName: infraTestAppServicePlan
+      webAppName: infraTestbp
+    secrets: inherit
+  
+  deploy-dev:
+    name: Build and run unit tests
+    if: |
+      startsWith(github.ref, 'refs/heads/develop') ||
+      startsWith(github.ref, 'refs/heads/release/') ||
+      startsWith(github.ref, 'refs/heads/hotfix/')
+    uses: ./.github/workflows/development.yaml
+    needs: test_infra
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        build_and_unit_test
+        sonar_code_scan
+        bpBDD_tests
+      resourceGroupName: development
+      pipelineStage: devVerification
+    secrets: inherit
+
+  deploy-qa:
+    name: Deploy QA test system and run QA tests
+    if: |
+      startsWith(github.ref, 'refs/heads/develop') ||
+      startsWith(github.ref, 'refs/heads/release/') ||
+      startsWith(github.ref, 'refs/heads/hotfix/')
+    uses: ./.github/workflows/qa.yaml
+    needs: 
+      - test_infra
+      - deploy-dev
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        deploy-qa-test-application
+        deploy-bpCalculator
+        playwright_tests
+        pentesting
+        delete-qa-test-application
+      resourceGroupName: qa
+      pipelineStage: qaVerification
+      armParameterFile: azureWebAppProvisioning/qaTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      appServicePlanName: qaAppServicePlan
+      webAppName: qaTestCA1
+    secrets: inherit
+
+  deploy-performance:
+    name: Deploy Performance system and run performance tests
+    if: |
+      startsWith(github.ref, 'refs/heads/develop') ||
+      startsWith(github.ref, 'refs/heads/release/') ||
+      startsWith(github.ref, 'refs/heads/hotfix/')
+    uses: ./.github/workflows/performance.yaml
+    needs: 
+      - deploy-dev
+      - deploy-qa
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        deploy-performance-test-application
+        deploy-bpCalculator
+        performance_tests
+        delete-performance-test-application
+      resourceGroupName: performance
+      pipelineStage: performanceVerification
+      armParameterFile: azureWebAppProvisioning/performanceTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      appServicePlanName: performanceAppServicePlan
+      webAppName: performanceTestCA1
+    secrets: inherit
+
+  deploy-production:
+    name: Deploy to Production
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/production.yaml
+    needs: 
+      - deploy-qa
+      - deploy-performance
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        deploy-performance-test-application
+        deploy-bpCalculator
+      resourceGroupName: production
+      pipelineStage: productionVerification
+      armParameterFile: azureWebAppProvisioning/productionTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      appServicePlanName: bpCA1AppServicePlan
+      webAppName: bpCA1
+    secrets: inherit
+
+name: Build and Test BP Calculator
+
+on:
+  push:
+    branches:
       - master
       - develop
       - 'release/*'

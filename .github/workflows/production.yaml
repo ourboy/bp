@@ -25,7 +25,7 @@ on:
         required: true
         type: string
 jobs:
-  deploy-production-application:
+  deploy-production-test-application:
     name: Deploy Production Infrastructure
     uses: ./.github/workflows/InfrastructureDeployWorkflow.yaml
     with:
@@ -43,7 +43,7 @@ jobs:
   deploy-bpCalculator:
     name: Deploy BP Calculator to Azure Web App
     runs-on: ubuntu-24.04
-    needs: deploy-production-application  # Ensures deployment runs only if build and tests pass
+    needs: deploy-production-test-application  # Ensures deployment runs only if build and tests pass
     environment:
       name: bpCA1
       url: bpCA1.azurewebsites.net
