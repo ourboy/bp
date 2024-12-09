@@ -8,15 +8,15 @@ using BPCalculator;
 
 namespace bpUnitTestProject
 {
-	[TestClass]
-	public class bpTest
-	{
-    //Verify correct Blood Pressure Category is returned
-		[DataTestMethod]
-		[DataRow(70, 40, BPCategory.Low)]
-		[DataRow(89, 59, BPCategory.Low)]
-		[DataRow(90, 55, BPCategory.Ideal)]
-		[DataRow(120, 55, BPCategory.Ideal)]
+  [TestClass]
+  public class bpTest
+  {
+    // Verify correct Blood Pressure Category is returned
+    [DataTestMethod]
+    [DataRow(70, 40, BPCategory.Low)]
+    [DataRow(89, 59, BPCategory.Low)]
+    [DataRow(90, 55, BPCategory.Ideal)]
+    [DataRow(120, 55, BPCategory.Ideal)]
     [DataRow(90, 60, BPCategory.Ideal)]
     [DataRow(120, 60, BPCategory.Ideal)]
     [DataRow(90, 80, BPCategory.Ideal)]
@@ -32,14 +32,14 @@ namespace bpUnitTestProject
     [DataRow(121, 90, BPCategory.High)]
     [DataRow(139, 90, BPCategory.High)]
     [DataRow(140, 60, BPCategory.High)]
-		[DataRow(140, 95, BPCategory.High)]
-		[DataRow(190, 100, BPCategory.High)]
-		public void ExpectedCategoryReturned_WhenValuesAreProvided(int systolic, int diastolic, BPCategory expectedCategory)
-		{
-			var bloodPressure = new BloodPressure { Systolic = systolic, Diastolic = diastolic };
-			var actualCategory = bloodPressure.Category;
-			Assert.AreEqual(expectedCategory, actualCategory);
-		}
+    [DataRow(140, 95, BPCategory.High)]
+    [DataRow(190, 100, BPCategory.High)]
+    public void ExpectedCategoryReturned_WhenValuesAreProvided(int systolic, int diastolic, BPCategory expectedCategory)
+    {
+      var bloodPressure = new BloodPressure { Systolic = systolic, Diastolic = diastolic };
+      var actualCategory = bloodPressure.Category;
+      Assert.AreEqual(expectedCategory, actualCategory);
+    }
 
     //Verify Correct Error message is returned
     [DataTestMethod]
@@ -92,9 +92,44 @@ namespace bpUnitTestProject
     //validate Blood Pressure
 		private bool ValidateBloodPressure(BloodPressure bloodPressure)
 		{
-			var validationContext = new ValidationContext(bloodPressure);
-			var validationResults = new List<ValidationResult>();
-			return Validator.TryValidateObject(bloodPressure, validationContext, validationResults, true);
+      var validationContext = new ValidationContext(bloodPressure);
+      var validationResults = new List<ValidationResult>();
+      return Validator.TryValidateObject(bloodPressure, validationContext, validationResults, true);
 		} 
-	}
+
+    // Verify correct recommendation is returned
+    [DataTestMethod]
+    [DataRow(70, 40, "Your blood pressure is low. Consider increasing your fluid intake, and consult a healthcare provider if you experience symptoms like dizziness.")]
+    [DataRow(100, 70, "Your blood pressure is ideal! Keep up the good work with healthy habits.")]
+    [DataRow(125, 85, "Your blood pressure is on the higher side. Adopting a healthier diet and increasing your physical activity can help improve your blood pressure.")]
+    [DataRow(145, 95, "Your blood pressure is high. Please consult with a healthcare provider for further advice and potential treatment as soon as possible.")]
+    public void GetRecommendation_ReturnsCorrectRecommendation(int systolic, int diastolic, string expectedRecommendation)
+    {
+      var bloodPressure = new BloodPressure { Systolic = systolic, Diastolic = diastolic };
+      var actualRecommendation = bloodPressure.GetRecommendation();
+      Assert.AreEqual(expectedRecommendation, actualRecommendation, $"Recommendation did not match for Systolic: {systolic}, Diastolic: {diastolic}");
+    }
+
+    // Validate Blood Pressure
+    private bool ValidateBloodPressure(BloodPressure bloodPressure)
+    {
+      var validationContext = new ValidationContext(bloodPressure);
+      var validationResults = new List<ValidationResult>();
+      return Validator.TryValidateObject(bloodPressure, validationContext, validationResults, true);
+    }
+
+    // Verify valid BP values
+    [DataTestMethod]
+    [DataRow(120, 80, true)]
+    [DataRow(70, 40, true)]
+    [DataRow(190, 100, true)]
+    [DataRow(69, 39, false)]  // Below lower boundary
+    [DataRow(191, 101, false)] // Above upper boundary
+    public void ValidBP_WhenValuesAreWithinRange(int systolic, int diastolic, bool expectedValidity)
+    {
+      var bloodPressure = new BloodPressure { Systolic = systolic, Diastolic = diastolic };
+      var isValid = ValidateBloodPressure(bloodPressure);
+      Assert.AreEqual(expectedValidity, isValid);
+    }
+  }
 }
