@@ -36,10 +36,7 @@ jobs:
   deploy-dev:
     name: Build and run unit tests
     if: |
-      startsWith(github.ref, 'refs/heads/develop') ||
-      startsWith(github.ref, 'refs/heads/hotfix/') ||
-      startsWith(github.head_ref, 'develop') ||
-      startsWith(github.head_ref, 'hotfix/')
+      github.event_name == 'pull_request' && (startsWith(github.base_ref, 'develop') || startsWith(github.base_ref, 'hotfix'))
     uses: ./.github/workflows/development.yaml
     needs: test_infra
     with:
@@ -55,10 +52,7 @@ jobs:
   deploy-qa:
     name: Deploy QA test system and run QA tests
     if: |
-      startsWith(github.ref, 'refs/heads/develop') ||
-      startsWith(github.ref, 'refs/heads/hotfix/') ||
-      startsWith(github.head_ref, 'develop') ||
-      startsWith(github.head_ref, 'hotfix/')
+      github.event_name == 'pull_request' && (startsWith(github.base_ref, 'develop') || startsWith(github.base_ref, 'hotfix'))
     uses: ./.github/workflows/qa.yaml
     needs: 
       - test_infra
@@ -81,10 +75,7 @@ jobs:
   deploy-performance:
     name: Deploy Performance system and run performance tests
     if: |
-      startsWith(github.ref, 'refs/heads/develop') ||
-      startsWith(github.ref, 'refs/heads/hotfix/') ||
-      startsWith(github.head_ref, 'develop') ||
-      startsWith(github.head_ref, 'hotfix/')
+      github.event_name == 'pull_request' && (startsWith(github.base_ref, 'develop') || startsWith(github.base_ref, 'hotfix'))
     uses: ./.github/workflows/performance.yaml
     needs: 
       - deploy-dev
@@ -106,8 +97,7 @@ jobs:
   deploy-staging:
     name: Deploy to Staging
     if: |
-      startsWith(github.ref, 'refs/heads/release/') ||
-      startsWith(github.head_ref, 'release/')
+      github.event_name == 'pull_request' && (startsWith(github.base_ref, 'release'))
     uses: ./.github/workflows/staging.yaml
     needs: 
       - deploy-qa
