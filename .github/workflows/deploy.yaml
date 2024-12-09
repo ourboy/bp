@@ -22,8 +22,7 @@ jobs:
       github.event_name == 'pull_request' && (startsWith(github.base_ref, 'develop') || startsWith(github.base_ref, 'release') || startsWith(github.base_ref, 'hotfix'))
     uses: ./.github/workflows/testInfrastructure.yaml
     with:
-      branch: 
-        - '*'
+      branch: '*'
       run_jobs: |
         deploy-infratest
         delete-infratest
