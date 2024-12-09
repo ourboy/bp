@@ -10,6 +10,9 @@ namespace BPCalculator.Pages
         [BindProperty]                              // bound on POST
         public BloodPressure BP { get; set; }
 
+        // Recommendation to be displayed on the page
+        public string Recommendation { get; set; }
+
         // setup initial data
         public void OnGet()
         {
@@ -23,6 +26,12 @@ namespace BPCalculator.Pages
             if (!(BP.Systolic > BP.Diastolic))
             {
                 ModelState.AddModelError("", "Systolic must be greater than Diastolic");
+            }
+            // If the model state is valid, get the recommendation
+            if (ModelState.IsValid)
+            {
+                // Get the recommendation based on the BP values
+                Recommendation = BP.GetRecommendation();
             }
             return Page();
         }
