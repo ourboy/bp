@@ -79,7 +79,7 @@ test(' Systolic lower range and Diastolic in ideal range', async ({ page }) => {
   await page.getByLabel('Diastolic').fill('60');
   await page.getByRole('button', { name: 'Submit' }).click();
   // TODO This test is broken. Return High when it should be retuning Ideal
-  await expect(page.getByText('High Blood Pressure')).toBeVisible();
+  await expect(page.getByText('Ideal Blood Pressure')).toBeVisible();
   // await expect(page.getByText('Ideal Blood Pressure')).toBeVisible();
 });
 
