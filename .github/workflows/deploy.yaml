@@ -7,6 +7,13 @@ on:
       - develop
       - 'release/*'
       - 'hotfix/*'
+  pull_request:
+    branches:
+      - main
+      - develop
+      - 'release/*'
+      - 'hotfix/*'
+
 
 jobs:
   test_infra:
@@ -32,8 +39,9 @@ jobs:
     name: Build and run unit tests
     if: |
       startsWith(github.ref, 'refs/heads/develop') ||
-      startsWith(github.ref, 'refs/heads/release/') ||
-      startsWith(github.ref, 'refs/heads/hotfix/')
+      startsWith(github.ref, 'refs/heads/hotfix/') ||
+      startsWith(github.head_ref, 'develop') ||
+      startsWith(github.head_ref, 'hotfix/')
     uses: ./.github/workflows/development.yaml
     needs: test_infra
     with:
@@ -50,8 +58,9 @@ jobs:
     name: Deploy QA test system and run QA tests
     if: |
       startsWith(github.ref, 'refs/heads/develop') ||
-      startsWith(github.ref, 'refs/heads/release/') ||
-      startsWith(github.ref, 'refs/heads/hotfix/')
+      startsWith(github.ref, 'refs/heads/hotfix/') ||
+      startsWith(github.head_ref, 'develop') ||
+      startsWith(github.head_ref, 'hotfix/')
     uses: ./.github/workflows/qa.yaml
     needs: 
       - test_infra
@@ -75,8 +84,9 @@ jobs:
     name: Deploy Performance system and run performance tests
     if: |
       startsWith(github.ref, 'refs/heads/develop') ||
-      startsWith(github.ref, 'refs/heads/release/') ||
-      startsWith(github.ref, 'refs/heads/hotfix/')
+      startsWith(github.ref, 'refs/heads/hotfix/') ||
+      startsWith(github.head_ref, 'develop') ||
+      startsWith(github.head_ref, 'hotfix/')
     uses: ./.github/workflows/performance.yaml
     needs: 
       - deploy-dev
@@ -95,17 +105,38 @@ jobs:
       webAppName: performanceTestCA1
     secrets: inherit
 
-  deploy-production:
-    name: Deploy to Production
-    if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/production.yaml
+  deploy-staging:
+    name: Deploy to Staging
+    if: |
+      startsWith(github.ref, 'refs/heads/release/') ||
+      startsWith(github.head_ref, 'release/')
+    uses: ./.github/workflows/staging.yaml
     needs: 
       - deploy-qa
       - deploy-performance
     with:
       branch: update-gitactions
       run_jobs: |
-        deploy-performance-test-application
+        deploy-staging-application
+        deploy-bpCalculator
+        playwright_tests
+        pentesting
+      resourceGroupName: staging
+      pipelineStage: stagingVerification
+      armParameterFile: azureWebAppProvisioning/stagingTemplete.parameters.json # Path to the parameters file for deployment ARM template
+      appServicePlanName: bpCA1StagingAppServicePlan
+      webAppName: bpCA1Staging
+    secrets: inherit
+  
+  deploy-production:
+    name: Deploy to Production
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/production.yaml
+    needs: deploy-staging
+    with:
+      branch: update-gitactions
+      run_jobs: |
+        deploy-production-application
         deploy-bpCalculator
       resourceGroupName: production
       pipelineStage: productionVerification
