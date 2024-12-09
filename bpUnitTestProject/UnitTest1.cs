@@ -82,7 +82,7 @@ namespace bpUnitTestProject
     [DataRow(190, 100, true)]
     [DataRow(69, 39, false)]  // Below lower boundary
     [DataRow(191, 101, false)] // Above upper boundary
-    public void ValidBP_WhenValuesAreWithinRange(int systolic, int diastolic, bool expectedValidity)
+    public void IsValidBP_WhenValuesAreWithinRange(int systolic, int diastolic, bool expectedValidity)
     {
       var bloodPressure = new BloodPressure { Systolic = systolic, Diastolic = diastolic };
       var isValid = ValidateBloodPressure(bloodPressure);
@@ -108,28 +108,6 @@ namespace bpUnitTestProject
       var bloodPressure = new BloodPressure { Systolic = systolic, Diastolic = diastolic };
       var actualRecommendation = bloodPressure.GetRecommendation();
       Assert.AreEqual(expectedRecommendation, actualRecommendation, $"Recommendation did not match for Systolic: {systolic}, Diastolic: {diastolic}");
-    }
-
-    // Validate Blood Pressure
-    private bool ValidateBloodPressure(BloodPressure bloodPressure)
-    {
-      var validationContext = new ValidationContext(bloodPressure);
-      var validationResults = new List<ValidationResult>();
-      return Validator.TryValidateObject(bloodPressure, validationContext, validationResults, true);
-    }
-
-    // Verify valid BP values
-    [DataTestMethod]
-    [DataRow(120, 80, true)]
-    [DataRow(70, 40, true)]
-    [DataRow(190, 100, true)]
-    [DataRow(69, 39, false)]  // Below lower boundary
-    [DataRow(191, 101, false)] // Above upper boundary
-    public void ValidBP_WhenValuesAreWithinRange(int systolic, int diastolic, bool expectedValidity)
-    {
-      var bloodPressure = new BloodPressure { Systolic = systolic, Diastolic = diastolic };
-      var isValid = ValidateBloodPressure(bloodPressure);
-      Assert.AreEqual(expectedValidity, isValid);
     }
   }
 }
