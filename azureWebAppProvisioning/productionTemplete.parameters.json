@@ -3,10 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "appServicePlanName": {
-      "value": "infraTestAppServicePlan"
+      "value": "bpCA1AppServicePlan"
     },
     "skuName": {
-      "value": "F1"
+      "value": "B1"
     },
     "skuTier": {
       "value": "Basic"
@@ -15,13 +15,13 @@
       "value": 1
     },
     "skuSize": {
-      "value": "F1"
+      "value": "B1"
     },
     "skuFamily": {
-      "value": "F"
+      "value": "B"
     },
     "webAppName": {
-      "value": "infraTestbp"
+      "value": "bpCA1"
     }
   }
 }

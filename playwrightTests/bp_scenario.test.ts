@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-const BASE_URL = 'https://test-bpcalculator.azurewebsites.net/';
+const BASE_URL = 'https://qatestca1.azurewebsites.net/';
 
 test(' Calculate Low Blood Pressure correctly', async ({ page }) => {
   await page.goto(BASE_URL);
@@ -79,7 +79,7 @@ test(' Systolic lower range and Diastolic in ideal range', async ({ page }) => {
   await page.getByLabel('Diastolic').fill('60');
   await page.getByRole('button', { name: 'Submit' }).click();
   // TODO This test is broken. Return High when it should be retuning Ideal
-  await expect(page.getByText('High Blood Pressure')).toBeVisible();
+  await expect(page.getByText('Ideal Blood Pressure')).toBeVisible();
   // await expect(page.getByText('Ideal Blood Pressure')).toBeVisible();
 });
 

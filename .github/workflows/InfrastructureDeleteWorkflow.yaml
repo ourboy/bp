@@ -1,0 +1,36 @@
+# Reusable workflow to create Resource Group and WebApp
+name: Infrastructure Provision Test
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+      run_jobs: #List of jobs to run, defaults to running all jobs if not specified
+        required: true
+        type: string
+      resourceGroupName:
+        required: true
+        type: string
+      pipelineStage:
+        required: true
+        type: string
+
+jobs:
+  delete-created-resources: # Job to delete the created resource group and all associated resources
+    # Run this job only if 'delete-created-resources' is listed in 'run_jobs'
+    if: contains(inputs.run_jobs, 'delete-created-resources')
+    runs-on: ubuntu-24.04
+    steps:
+      # Azure Login
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Delete the resource group and all its resources
+      - name: Delete Resource Group
+        run: |
+          az group delete --name ${{ inputs.resourceGroupName }}ca1 -y --no-wait
+          echo "Resource group deletion initiated."
