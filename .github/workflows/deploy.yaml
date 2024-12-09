@@ -3,13 +3,13 @@ name: Build and Test BP Calculator
 on:
   push:
     branches:
-      - main
+      - master
       - develop
       - 'release/*'
       - 'hotfix/*'
   pull_request:
     branches:
-      - main
+      - master
       - develop
       - 'release/*'
       - 'hotfix/*'
@@ -118,7 +118,7 @@ jobs:
   
   deploy-production:
     name: Deploy to Production
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     uses: ./.github/workflows/production.yaml
     needs: deploy-staging
     with:
