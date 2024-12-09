@@ -19,13 +19,7 @@ jobs:
   test_infra:
     name: Test Infrastructure Deployment
     if: |
-      github.event_name == 'pull_request' && github.base_ref == 'develop' ||
-      startsWith(github.ref, 'refs/heads/develop') ||
-      startsWith(github.ref, 'refs/heads/release/') ||
-      startsWith(github.ref, 'refs/heads/hotfix/') ||
-      startsWith(github.head_ref, 'develop') ||
-      startsWith(github.head_ref, 'hotfix/') ||
-      startsWith(github.head_ref, 'release')
+      github.event_name == 'pull_request' && (startsWith(github.base_ref, 'develop') || startsWith(github.base_ref, 'release') || startsWith(github.base_ref, 'hotfix'))
     uses: ./.github/workflows/testInfrastructure.yaml
     with:
       branch: update-gitactions
