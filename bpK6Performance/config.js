@@ -1,1 +1,1 @@
-export const BASE_URL = "https://test-bpcalculator.azurewebsites.net/";
+export const BASE_URL = "https://performanceTestCA1.azurewebsites.net/";
