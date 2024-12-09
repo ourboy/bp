@@ -19,6 +19,7 @@ jobs:
   test_infra:
     name: Test Infrastructure Deployment
     if: |
+      github.event_name == 'pull_request' && github.base_ref == 'develop' ||
       startsWith(github.ref, 'refs/heads/develop') ||
       startsWith(github.ref, 'refs/heads/release/') ||
       startsWith(github.ref, 'refs/heads/hotfix/') ||
