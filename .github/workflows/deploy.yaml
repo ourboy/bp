@@ -124,8 +124,8 @@ jobs:
       resourceGroupName: staging
       pipelineStage: stagingVerification
       armParameterFile: azureWebAppProvisioning/stagingTemplete.parameters.json # Path to the parameters file for deployment ARM template
-      appServicePlanName: bpCA1StagingAppServicePlan
-      webAppName: bpCA1Staging
+      appServicePlanName: qaAppServicePlan
+      webAppName: qaTestCA1
     secrets: inherit
   
   deploy-production:

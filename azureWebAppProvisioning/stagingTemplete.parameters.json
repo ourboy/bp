@@ -3,10 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "appServicePlanName": {
-      "value": "bpCA1StagingAppServicePlan"
+      "value": "qaAppServicePlan"
     },
     "skuName": {
-      "value": "B1"
+      "value": "B3"
     },
     "skuTier": {
       "value": "Basic"
@@ -15,13 +15,13 @@
       "value": 1
     },
     "skuSize": {
-      "value": "B1"
+      "value": "B3"
     },
     "skuFamily": {
       "value": "B"
     },
     "webAppName": {
-      "value": "bpCA1Staging"
+      "value": "qaTestCA1"
     }
   }
 }
